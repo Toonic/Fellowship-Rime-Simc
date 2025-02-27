@@ -1,108 +1,248 @@
-from Character import Character
-from Spell import Spell
-from Sim import Simulation
+"""Main file for simulating Character DPS."""
+
+import argparse
+from typing import Optional
 from copy import copy
 
-def main():
-    print("----------------------------")
-    print("Starting new Sim")
-    print("----------------------------")
-    ## Create your character below by plugging in their Point Stats, not % Stats.
-    #Test Character
-    character = Character(intellect=300, crit=160, expertise=90, haste=120, spirit=50)
-
-    ## Talents
-    ## Row 1 - 2 Points Each
-    #character.add_talent("Chillblain")
-    character.add_talent("Coalescing Ice")
-    #character.add_talent("Glacial Assault") #Doodoo
-    ## Row 2 - 1 Point Each
-    character.add_talent("Unrelenting Ice")
-    character.add_talent("Icy Flow")
-    ## Row 3 - 3 Points Each
-    #character.add_talent("Wisdom of the North")
-    #character.add_talent("Avalanche")
-    character.add_talent("Soulfrost Torrent")
-    
-    ## Spells casted in order.
-    character.add_spell(Spell("Wrath of Winter", cast_time=0, cooldown=600, mana_generation=0, winter_orb_cost=0, damage_percent=0, isBuff=True, ticks=10, debuffDuration=20))
-    character.add_spell(Spell("Ice Blitz", cast_time=0, cooldown=120, mana_generation=0, winter_orb_cost=0, damage_percent=0, isBuff=True, ticks=0, debuffDuration=20))
-    character.add_spell(Spell("Dance of Swallows", cast_time=0, cooldown=60, mana_generation=0, winter_orb_cost=2, damage_percent=53, isDebuff=True, ticks=0, debuffDuration=20))
-    #character.add_spell(Spell("Ice Comet", cast_time=0, cooldown=0, mana_generation=0, winter_orb_cost=3, damage_percent=300))
-    #character.add_spell(Spell("Glacial Blast", cast_time=2.0, cooldown=0, mana_generation=0, winter_orb_cost=2, damage_percent=504))
-    character.add_spell(Spell("Cold Snap", cast_time=0, cooldown=8, mana_generation=0, winter_orb_cost=-1, damage_percent=204))  # Cold Snap spell
-    character.add_spell(Spell("Bursting Ice", cast_time=2.0, cooldown=15, mana_generation=6, winter_orb_cost=0, damage_percent=366, isDebuff=True, ticks=6, debuffDuration=3, doDebuffDamage=True))
-    character.add_spell(Spell("Ice Comet", cast_time=0, cooldown=0, mana_generation=0, winter_orb_cost=3, damage_percent=300, min_target_count=2, max_target_count=1000))
-    character.add_spell(Spell("Glacial Blast", cast_time=2.0, cooldown=0, mana_generation=0, winter_orb_cost=2, damage_percent=504, min_target_count=1, max_target_count=2))
-    character.add_spell(Spell("Freezing Torrent", cast_time=2.0, cooldown=10, mana_generation=6, winter_orb_cost=0, damage_percent=390, channeled=True, ticks=6))
-    character.add_spell(Spell("FrostBolt", cast_time=1.5, cooldown=0, mana_generation=3, winter_orb_cost=0, damage_percent=73))
-
-    ## Sim Options - Uncomment one to run.
-    #average_dps(character,1)
-    average_dps(character,5)
-    #stat_weights(character)
-    #debug_sim(character)
+from base import Character
+from characters.Rime import RimeSpell, RimeTalent
+from characters.Rime.preset import RimePreset
+from Sim import Simulation
 
 
-def stat_weights(character):
+def main(arguments: argparse.Namespace):
+    """Main function."""
+
+    if arguments.preset and arguments.custom_character:
+        raise ValueError(
+            "Cannot provide both preset and custom character. "
+            + "Please provide only one."
+        )
+
+    print("------------------")
+    print(" Starting new Sim")
+    print("------------------")
+
+    if arguments.custom_character:
+        try:
+            stats = [
+                int(stat) for stat in arguments.custom_character.split("-")
+            ]
+        except ValueError as e:
+            raise ValueError(
+                "Custom character must be formatted as "
+                + "intellect-crit-expertise-haste-spirit"
+            ) from e
+
+        if len(stats) != 5:
+            raise ValueError(
+                "Custom character must be formatted as "
+                + "intellect-crit-expertise-haste-spirit"
+            )
+        for stat in stats:
+            if stat < 0:
+                raise ValueError(
+                    "All stats must be positive integers. "
+                    + f"Invalid stat: {stat}"
+                )
+
+        character = Character(
+            intellect=stats[0],
+            crit=stats[1],
+            expertise=stats[2],
+            haste=stats[3],
+            spirit=stats[4],
+        )
+    if arguments.preset:
+        # Use preset if provided.
+        character = RimePreset[arguments.preset].value
+    else:
+        character = RimePreset.DEFAULT.value
+
+    # Parse the talent tree argument.
+    # e.g. Combination of "2-12-3" means Talent 1.2, 2.1, 2.2, 3.3
+    # = Coalescing Ice, Unrelenting Ice, Icy Flow, Soulfrost Torrent
+    if arguments.talent_tree:
+        talents = arguments.talent_tree.split("-")
+        for index, talent in enumerate(talents):
+            for i in talent:
+                rime_talent = RimeTalent.get_by_identifier(f"{index+1}.{i}")
+                if rime_talent:
+                    character.add_talent(rime_talent.value.name)
+
+    # Spells casted in order.
+    character.add_spell_to_rotation(RimeSpell.WRATH_OF_WINTER)
+    character.add_spell_to_rotation(RimeSpell.ICE_BLITZ)
+    character.add_spell_to_rotation(RimeSpell.DANCE_OF_SWALLOWS)
+    # character.add_spell(RimeSpell.ICE_COMET)
+    # character.add_spell(RimeSpell.GLACIAL_BLAST)
+    character.add_spell_to_rotation(RimeSpell.COLD_SNAP)
+    character.add_spell_to_rotation(RimeSpell.BURSTING_ICE)
+    character.add_spell_to_rotation(RimeSpell.ICE_COMET)
+    character.add_spell_to_rotation(RimeSpell.GLACIAL_BLAST)
+    character.add_spell_to_rotation(RimeSpell.FREEZING_TORRENT)
+    character.add_spell_to_rotation(RimeSpell.FROST_BOLT)
+
+    # Sim Options - Uncomment one to run.
+    match arguments.simulation_type:
+        case "average_dps":
+            average_dps(character, arguments.enemy_count)
+        case "stat_weights":
+            stat_weights(character)
+        case "debug_sim":
+            debug_sim(character)
+
+
+def stat_weights(character: Character) -> None:
+    """Calculates the stat weights of the character."""
+
     print("==== Doing Stat Weights ==== ")
-    statIncrease = 200
+    stat_increase = 200
     target_count = 4
-    characterBase = character
-    baseDPS = average_dps(characterBase, target_count)
+    character_base = character
+    base_dps = average_dps(character_base, target_count)
 
-    characterUpdated = character
-    characterUpdated.update_stats(intellect=characterUpdated.intellectPoints + statIncrease, crit=characterUpdated.critPoints, expertise=characterUpdated.expertisePoints, haste=characterUpdated.hastePoints, spirit=characterUpdated.spiritPoints)
-    intDPS = average_dps(characterUpdated, target_count)
+    def update_stats(
+        character: Character, stat_increase: int, stat_name: str
+    ) -> float:
+        character_updated = character
+        character_updated.update_stats(
+            intellect=(
+                character_updated.intellect_points + stat_increase
+                if stat_name == "intellect"
+                else character_updated.intellect_points
+            ),
+            crit=(
+                character_updated.crit_points + stat_increase
+                if stat_name == "crit"
+                else character_updated.crit_points
+            ),
+            expertise=(
+                character_updated.expertise_points + stat_increase
+                if stat_name == "expertise"
+                else character_updated.expertise_points
+            ),
+            haste=(
+                character_updated.haste_points + stat_increase
+                if stat_name == "haste"
+                else character_updated.haste_points
+            ),
+            spirit=(
+                character_updated.spirit_points + stat_increase
+                if stat_name == "spirit"
+                else character_updated.spirit_points
+            ),
+        )
 
-    characterUpdated = character
-    characterUpdated.update_stats(intellect=characterUpdated.intellectPoints, crit=characterUpdated.critPoints + statIncrease, expertise=characterUpdated.expertisePoints, haste=characterUpdated.hastePoints, spirit=characterUpdated.spiritPoints)
-    critDPS = average_dps(characterUpdated, target_count)
+        return average_dps(character_updated, target_count, stat_name)
 
-    characterUpdated = character
-    characterUpdated.update_stats(intellect=characterUpdated.intellectPoints, crit=characterUpdated.critPoints, expertise=characterUpdated.expertisePoints + statIncrease, haste=characterUpdated.hastePoints, spirit=characterUpdated.spiritPoints)
-    expertiseDPS = average_dps(characterUpdated, target_count)
-
-    characterUpdated = character
-    characterUpdated.update_stats(intellect=characterUpdated.intellectPoints, crit=characterUpdated.critPoints, expertise=characterUpdated.expertisePoints, haste=characterUpdated.hastePoints + statIncrease, spirit=characterUpdated.spiritPoints)
-    hasteDPS = average_dps(characterUpdated, target_count)
-
-    characterUpdated = character
-    characterUpdated.update_stats(intellect=characterUpdated.intellectPoints, crit=characterUpdated.critPoints, expertise=characterUpdated.expertisePoints, haste=characterUpdated.hastePoints, spirit=characterUpdated.spiritPoints + statIncrease)
-    spiritDPS = average_dps(characterUpdated, target_count)
+    int_dps = update_stats(character, stat_increase, "intellect")
+    crit_dps = update_stats(character, stat_increase, "crit")
+    expertise_dps = update_stats(character, stat_increase, "expertise")
+    haste_dps = update_stats(character, stat_increase, "haste")
+    spirit_dps = update_stats(character, stat_increase, "spirit")
 
     print("--------------")
-    print(f'Stat Weights:')
-    print(f'Intellect: {1 + ((intDPS - baseDPS) / baseDPS):.2f}')
-    print(f'Crit: {1 + ((critDPS - baseDPS) / baseDPS):.2f}')
-    print(f'Expertise: {1 + ((expertiseDPS - baseDPS) / baseDPS):.2f}')
-    print(f'Haste: {1 + ((hasteDPS - baseDPS) / baseDPS):.2f}')
-    print(f'Spirit: {1 + ((spiritDPS - baseDPS) / baseDPS):.2f}')
+    print("Stat Weights:")
+    print(f"Intellect: {1 + ((int_dps - base_dps) / base_dps):.2f}")
+    print(f"Crit: {1 + ((crit_dps - base_dps) / base_dps):.2f}")
+    print(f"Expertise: {1 + ((expertise_dps - base_dps) / base_dps):.2f}")
+    print(f"Haste: {1 + ((haste_dps - base_dps) / base_dps):.2f}")
+    print(f"Spirit: {1 + ((spirit_dps - base_dps) / base_dps):.2f}")
     print("--------------")
 
-def debug_sim(character):
-    sim = Simulation(character, duration=120, doDebug = True)
+
+def debug_sim(character: Character) -> None:
+    """Runs a debug simulation."""
+
+    sim = Simulation(character, duration=120, do_debug=True)
     sim.run()
 
-def average_dps(character, enemy_count):
-    runCount = 2000
-    dpsRunningTotal = 0
-    dpsLowest = 1000000
-    dpsHighest = 0
-    for i in range(runCount):
-        characterCopy = copy(character)
-        sim = Simulation(characterCopy, duration=180, enemyCount = enemy_count, doDebug = False)
+
+def average_dps(
+    character: Character, enemy_count: int, stat_name: Optional[str] = None
+) -> float:
+    """Runs a simulation and returns the average DPS."""
+
+    if stat_name:
+        print(f"Stat Weight: {stat_name}\n-------------")
+
+    run_count = 2000
+    dps_running_total = 0
+    dps_lowest = 1000000
+    dps_highest = 0
+    for _ in range(run_count):
+        # NOTE: This is a shallow copy, not deep copy.
+        # Review if this is intented :)
+        character_copy = copy(character)
+        sim = Simulation(
+            character_copy,
+            duration=180,
+            enemy_count=enemy_count,
+            do_debug=False,
+        )
         dps = sim.run()
-        if dps < dpsLowest:
-            dpsLowest = dps
-        if dps > dpsHighest:
-            dpsHighest = dps
-        dpsRunningTotal += dps
-    averageDPS = dpsRunningTotal / runCount
-    print(f'Highest DPS: {dpsHighest:.2f}')
-    print(f'Average DPS: {averageDPS:.2f}')
-    print(f'Lowest DPS: {dpsLowest:.2f}')
-    return averageDPS
+        dps_lowest = min(dps, dps_lowest)
+        dps_highest = max(dps, dps_highest)
+
+        dps_running_total += dps
+    avg_dps = dps_running_total / run_count
+
+    print(f"Highest DPS: {dps_highest:.2f}")
+    print(f"Average DPS: {avg_dps:.2f}")
+    print(f"Lowest DPS: {dps_lowest:.2f}\n")
+
+    return avg_dps
+
 
 if __name__ == "__main__":
-    main()
+    # Create parser for command line arguments.
+    parser = argparse.ArgumentParser(description="Simulate Rime DPS.")
+
+    parser.add_argument(
+        "-s",
+        "--simulation-type",
+        type=str,
+        default="average_dps",
+        help="Type of simulation to run.",
+        choices=["average_dps", "stat_weights", "debug_sim"],
+        required=True,
+    )
+    parser.add_argument(
+        "-e",
+        "--enemy-count",
+        type=int,
+        default=1,
+        help="Number of enemies to simulate.",
+    )
+    parser.add_argument(
+        "-t",
+        "--talent-tree",
+        type=str,
+        default="",
+        help="Talent tree to use. Format: (row1-row2-row3), "
+        + "e.g., 13-1-2 means Talent 1.1, Talent 1.3, Talent 2.1, Talent 3.2",
+    )
+    parser.add_argument(
+        "-p",
+        "--preset",
+        type=str,
+        default="",
+        help="Preset to use. Possible values: "
+        + ",".join([preset.name for preset in RimePreset]),
+        choices=[preset.name for preset in RimePreset],
+    )
+    parser.add_argument(
+        "-c",
+        "--custom-character",
+        type=str,
+        default="",
+        help="Custom character to use. "
+        + "Format: intellect-crit-expertise-haste-spirit",
+    )
+
+    # Parse arguments.
+    args = parser.parse_args()
+
+    # Run the simulation.
+    main(args)
