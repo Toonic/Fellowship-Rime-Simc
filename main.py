@@ -1,5 +1,6 @@
 """Main file for simulating Character DPS."""
 
+import sys
 import argparse
 from typing import Optional
 from copy import deepcopy
@@ -172,6 +173,15 @@ def debug_sim(character: Character, duration: int, enemy_count: int) -> None:
     sim.run()
 
 
+def update_progress(progress: float) -> None:
+    """Updates the progress bar in the console."""
+    bar_length = 40
+    block = int(round(bar_length * progress))
+    text = f"\rProgress: [{'#' * block + '-' * (bar_length - block)}] {progress * 100:.2f}%"
+    sys.stdout.write(text)
+    sys.stdout.flush()
+
+
 def average_dps(
     character: Character,
     duration: int,
@@ -188,7 +198,8 @@ def average_dps(
     dps_lowest = float("inf")
     dps_highest = float("-inf")
 
-    for _ in range(run_count):
+    for run_index in range(run_count):
+        update_progress(run_index / run_count)
         character_copy = deepcopy(character)
         sim = Simulation(
             character_copy,
@@ -203,6 +214,13 @@ def average_dps(
 
         dps_running_total += dps
     avg_dps = dps_running_total / run_count
+
+    # Ensure progress bar is full
+    update_progress(1)
+
+    # Clear the progress bar line
+    sys.stdout.write("\r" + " " * 80 + "\r")
+    sys.stdout.flush()
 
     print(f"Highest DPS: {dps_highest:.2f}")
     print(f"Average DPS: {avg_dps:.2f}")
