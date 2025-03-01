@@ -1,6 +1,6 @@
 """Module for the Character class."""
 
-from typing import List, TYPE_CHECKING
+from typing import Dict, List, TYPE_CHECKING
 
 from characters.Rime import RimeSpell, RimeBuff
 
@@ -36,13 +36,14 @@ class Character:
         self.mana = 0
         self.winter_orbs = 0
         # This will hold the character's available spells.
-        self.spells: List[Spell] = [spell.value for spell in RimeSpell]
+        self.spells: Dict[str, Spell] = {
+            spell.value.name.lower(): spell.value for spell in RimeSpell
+        }
         # This will hold the character's rotation.
         self.rotation: List[Spell] = []
         # All the talents.
         self.talents: List[str] = []
 
-        self.anima_spikes = RimeSpell.ANIMA_SPIKES.value
         self.soulfrost = RimeSpell.SOULFROST_TORRENT.value
         self.boosted_blast = RimeBuff.BOOSTED_BLAST.value
 
@@ -53,7 +54,7 @@ class Character:
     def add_spell_to_rotation(self, spell: RimeSpell) -> None:
         """Adds a spell to the character's rotation."""
 
-        if spell.value not in self.spells:
+        if spell.value.name.lower() not in self.spells:
             raise ValueError(f"Spell {spell} not found in available spells.")
 
         self.rotation.append(spell.value)

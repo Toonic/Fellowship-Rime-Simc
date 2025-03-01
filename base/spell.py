@@ -59,14 +59,11 @@ class Spell:
     def is_ready(self, character: "Character", enemy_count: int) -> bool:
         """Returns True if the spell is ready to be cast."""
 
-        if (
-            enemy_count >= self.min_target_count
-            and enemy_count <= self.max_target_count
-        ):
-            if self.winter_orb_cost <= character.winter_orbs:
-                if self.remaining_cooldown <= 0:
-                    return True
-        return False
+        return (
+            self.min_target_count <= enemy_count <= self.max_target_count
+            and self.winter_orb_cost <= character.winter_orbs
+            and self.remaining_cooldown <= 0
+        )
 
     def damage(self, character: "Character") -> float:
         """Returns the damage of the spell."""
