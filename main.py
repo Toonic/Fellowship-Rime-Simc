@@ -41,6 +41,8 @@ def main(arguments: argparse.Namespace):
     table.add_row("Simulation Type", arguments.simulation_type)
     table.add_row("Enemy Count", str(arguments.enemy_count))
     table.add_row("Duration", str(arguments.duration))
+    if arguments.simulation_type == "stat_weights":
+        table.add_row("Stat Weights Gain", str(arguments.stat_weights_gain))
     table.add_row(
         "Preset",
         arguments.preset if arguments.preset else RimePreset.DEFAULT.name,
@@ -133,16 +135,32 @@ def main(arguments: argparse.Namespace):
     match arguments.simulation_type:
         case "average_dps":
             average_dps(
-                table, character, arguments.duration, arguments.enemy_count
+                table,
+                character,
+                arguments.duration,
+                arguments.run_count,
+                arguments.enemy_count,
+                arguments.experimental_feature,
             )
         case "stat_weights":
             stat_weights(
-                table, character, arguments.duration, arguments.enemy_count
+                table,
+                character,
+                arguments.duration,
+                arguments.run_count,
+                arguments.stat_weights_gain,
+                arguments.experimental_feature,
+                arguments.enemy_count,
             )
         case "debug_sim":
-            debug_sim(character, arguments.duration, arguments.enemy_count)
+            debug_sim(
+                character,
+                arguments.duration,
+                arguments.enemy_count,
+            )
 
     # Print the final results
+    console.print("\n")
     console.print(table)
 
 
@@ -150,15 +168,23 @@ def stat_weights(
     table: Table,
     character: Character,
     duration: int,
+    run_count: int,
+    stat_increase: int,
+    use_experimental: bool,
     enemy_count: Optional[int] = None,
 ) -> None:
     """Calculates the stat weights of the character."""
 
-    stat_increase = 200
     target_count = 4 if enemy_count is None else enemy_count
     character_base = character
     base_dps = average_dps(
-        table, character_base, duration, target_count, "base"
+        table,
+        character_base,
+        duration,
+        run_count,
+        target_count,
+        use_experimental=use_experimental,
+        stat_name="base",
     )
 
     def update_stats(
@@ -197,8 +223,10 @@ def stat_weights(
             table,
             character_updated,
             duration,
+            run_count,
             target_count,
-            stat_name,
+            use_experimental=use_experimental,
+            stat_name=stat_name,
         )
 
     int_dps = update_stats(character, stat_increase, "intellect")
@@ -207,7 +235,7 @@ def stat_weights(
     haste_dps = update_stats(character, stat_increase, "haste")
     spirit_dps = update_stats(character, stat_increase, "spirit")
 
-    table.add_row("Stat Weights", "[white]-------------")
+    table.add_row("\n[white]Stat Weights", "\n[white]-------------")
     table.add_row(
         "Intellect", f"[magenta]{1 + ((int_dps - base_dps) / base_dps):.2f}"
     )
@@ -245,7 +273,9 @@ def average_dps(
     table: Table,
     character: Character,
     duration: int,
+    run_count: int,
     enemy_count: int,
+    use_experimental: bool,
     stat_name: Optional[str] = None,
 ) -> float:
     """Runs a simulation and returns the average DPS."""
@@ -262,7 +292,6 @@ def average_dps(
         TextColumn("•"),
         TimeRemainingColumn(),
     ) as progress:
-        run_count = 2000
         dps_running_total = 0
         dps_lowest = float("inf")
         dps_highest = float("-inf")
@@ -288,8 +317,6 @@ def average_dps(
             dps_running_total += dps
         avg_dps = dps_running_total / run_count
 
-        progress.update(task, visible=False)
-
     table.add_row(
         "Average DPS" if not stat_name else f"Average DPS ({stat_name})",
         f"[bold magenta]{avg_dps:.2f}",
@@ -303,6 +330,39 @@ def average_dps(
         f"[bold magenta]{dps_highest:.2f}",
         end_section=True,
     )
+
+    # Experimental: Damage Table
+    # ---------------------------
+    if not stat_name and use_experimental:
+        damage_sum = sum(damage for _, damage in sim.damage_table.items())
+
+        # Sort sim.damage_table by damage dealt from highest to lowest.
+        # Remove rows with 0 values
+        sorted_damage_table = {
+            k: v
+            for k, v in sorted(
+                sim.damage_table.items(),
+                key=lambda item: item[1],
+                reverse=True,
+            )
+            if v > 0
+        }
+
+        table.add_row(
+            "[bold yellow]-------- Experimental!",
+            "[bold yellow]Do not trust! --------",
+        )
+
+        # make first 3 rows bold
+        for i, (spell, damage) in enumerate(sorted_damage_table.items()):
+            spell_name = f"[bold]{spell}" if i < 3 else spell
+            damage = (
+                f"[bold dark_red]{round(damage, 3)} ({damage/damage_sum:.2%})"
+                if i < 3
+                else f"[magenta]{round(damage, 3)} ({damage/damage_sum:.2%})"
+            )
+
+            table.add_row(spell_name, damage)
 
     return avg_dps
 
@@ -359,6 +419,26 @@ if __name__ == "__main__":
         type=int,
         default=120,
         help="Duration of the simulation.",
+    )
+    parser.add_argument(
+        "-r",
+        "--run-count",
+        type=int,
+        default=2000,
+        help="Number of runs to average DPS.",
+    )
+    parser.add_argument(
+        "-g",
+        "--stat-weights-gain",
+        type=float,
+        default=20,
+        help="Gain of stat weights for the simulation.",
+    )
+    parser.add_argument(
+        "-x",
+        "--experimental-feature",
+        action="store_true",
+        help="Enable experimental features such as the damage table.",
     )
 
     # Parse arguments.

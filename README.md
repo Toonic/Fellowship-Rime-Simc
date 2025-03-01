@@ -41,12 +41,14 @@ Currently working on:
 **The program supports multiple arguments:**
 
 ```bash
-python main.py -s average_dps -e 5 -d <duration_secs> -t <talent_tree> -p <preset> -c <custom_character>
+python main.py -s average_dps -e 5 -d <duration_secs> -r <run_count> -g <stat_weights_gain> -t <talent_tree> -p <preset> -c <custom_character>
 ```
 
 - `-s <sim_type>`: The type of simulation to run.
 - `-e <enemy_count>`: The number of enemies to simulate.
 - `-d <duration_secs>`: The duration of the simulation in seconds. Default is `120`.
+- `-r <run_count>`: The number of times to run the simulation. Default is `2000`.
+- `-g <stat_weights_gain>`: Stat increase constant when running the simulation. Default is `20`.
 - `-t <talent_tree>`: The talent tree to use. Format must be `{row1}-{row2}-{row3}`.
 - `-p <preset>`: Use a preset character.
 - `-c <custom_character>`: Use a custom character. Format must be `{intellect}-{crit}-{expertise}-{haste}-{spirit}`.
@@ -54,10 +56,10 @@ python main.py -s average_dps -e 5 -d <duration_secs> -t <talent_tree> -p <prese
 ### ✨ Example
 
 ```bash
-python main.py -s average_dps -e 5 -t 2-12-3 -p default -c 100-20-30-40-50
+python main.py -s average_dps -e 5 -d 120 -r 2000 -t 2-12-3 -p default -c 100-20-30-40-50
 ```
 
-This will run the average DPS simulation with 5 enemies, using the default preset and a custom character with 100 intellect, 20 crit, 30 expertise, 40 haste, and 50 spirit. The simulation will run for 120 seconds by default.
+This will run the average DPS simulation with 5 enemies, using the default preset and a custom character with 100 intellect, 20 crit, 30 expertise, 40 haste, and 50 spirit. The simulation will run 2000 times for 120 seconds by default.
 
 ## 👑 Hall of Fame / Credits
 

@@ -27,12 +27,19 @@ class Simulation:
         self.enemy_count = enemy_count
         self.is_deterministic = is_deterministic
 
+        self.damage_table = {}
+
         if is_deterministic:
             self.character.crit = 0
             self.character.spirit = 0
 
+    def _fill_damage_table(self, key: str, damage: float) -> None:
+        """Fill the damage table with the given key and damage."""
+
+        self.damage_table[key] = self.damage_table.get(key, 0) + damage
+
     # Whenever we gain orbs, we want to cast 3 Anime Spikes.
-    def gain_orb(self, do_spikes=True):
+    def gain_orb(self, do_spikes=True) -> None:
         """Ensures orb is gained during cast"""
 
         self.character.winter_orbs += 1
@@ -42,15 +49,22 @@ class Simulation:
                 + f"Count: {self.character.winter_orbs}"
             )
         self.update_time(0.01)
+
         if do_spikes:
-            for _ in range(self.character.anima_spikes.hits):
-                damage = self.character.anima_spikes.damage(self.character)
+            for _ in range(self.character.spells["anima spikes"].hits):
+                damage = self.character.spells["anima spikes"].damage(
+                    self.character
+                )
                 self.total_damage += damage
+                self._fill_damage_table(
+                    self.character.spells["anima spikes"].name, damage
+                )
+
                 if self.do_debug:
                     print(
                         f"Time {self.time:.2f}: "
-                        + f"Cast {self.character.anima_spikes.name}, "
-                        + f"dealing {damage:.2f} damage"
+                        + f"Cast {self.character.spells['anima spikes'].name},"
+                        + f" dealing {damage:.2f} damage"
                     )
 
         # If we are capped on Orbs, cap on 5.
@@ -89,7 +103,7 @@ class Simulation:
         anima_gained: float,
         orb_cost: int,
         is_cast: bool = True,
-    ):
+    ) -> None:
         """Does damage to the enemy (dummy)"""
 
         damage = self.apply_damage_multipliers(spell, damage)
@@ -101,6 +115,7 @@ class Simulation:
             damage = self.apply_critical_hit(spell, damage)
             damage = self.apply_aoe_damage_reduction(spell, damage, i)
             self.total_damage += damage
+            self._fill_damage_table(spell.name, damage)
 
         self.manage_mana_and_orbs(spell, anima_gained, orb_cost)
         self.handle_debug_output(spell, damage, is_cast)
@@ -243,15 +258,19 @@ class Simulation:
             self.character.mana += 2
         self.character.mana += anima_gained
 
+        anima_spikes = self.character.spells["anima spikes"]
+
         for buff in self.buffs:
             if buff.name == "Ice Blitz":
                 for _ in range(int(anima_gained)):
-                    damage = self.character.anima_spikes.damage(self.character)
+                    damage = anima_spikes.damage(self.character)
                     self.total_damage += damage
+                    self._fill_damage_table(anima_spikes.name, damage)
+
                     if self.do_debug:
                         print(
                             f"Time {self.time:.2f}: "
-                            + f"Cast {self.character.anima_spikes.name}, "
+                            + f"Cast {anima_spikes.name}, "
                             + f"dealing {damage:.2f} damage"
                         )
 
@@ -267,7 +286,7 @@ class Simulation:
         if spell.name == "Cold Snap":
             for _ in range(10):
                 self.do_dance_of_swallows()
-        if spell.name == "Freezing Torrent":
+        elif spell.name == "Freezing Torrent":
             self.do_dance_of_swallows()
 
     def handle_debug_output(
@@ -281,7 +300,7 @@ class Simulation:
                 + f"{damage:.2f} damage"
             )
 
-    def do_dance_of_swallows(self):
+    def do_dance_of_swallows(self) -> None:
         """Handles the Dance of Swallows."""
 
         for debuff in self.debuffs:
@@ -353,6 +372,9 @@ class Simulation:
         for spell in self.character.rotation:
             spell.reset_cooldown()
 
+        for spell in self.character.spells.values():
+            self.damage_table[spell.name] = 0
+
         while self.time < self.duration:
             if self.gcd > 0:
                 self.update_time(self.gcd)
@@ -367,9 +389,47 @@ class Simulation:
                 None,
             )
 
+            if spell is not None:
+                check = False
+
+                # Check for spells
+                for test_spell in self.character.rotation:
+                    if spell.name != test_spell.name:
+                        if (
+                            spell.effective_cast_time(self.character) == 0
+                            and test_spell.remaining_cooldown > 0
+                            and test_spell.remaining_cooldown
+                            < (1.5 / (1 + self.character.haste / 100))
+                        ):
+                            if self.do_debug:
+                                print(
+                                    f"Waiting for {test_spell.name} "
+                                    + "(GCD Trigger)"
+                                )
+                            self.update_time(test_spell.remaining_cooldown)
+                            check = True
+                            break
+
+                        if (
+                            test_spell.remaining_cooldown
+                            < spell.effective_cast_time(self.character)
+                            and test_spell.remaining_cooldown > 0
+                        ):
+                            if self.do_debug:
+                                print(f"Waiting for {test_spell.name}")
+                            self.update_time(test_spell.remaining_cooldown)
+                            check = True
+                            break
+                    else:
+                        break
+
+                if check:
+                    continue
+
             if spell is None:
                 if self.do_debug:
                     print(f"Time {self.time:.2f}: No ready spell available")
+                self.update_time(0.1)
                 continue
 
             self.gcd = 1.5 / (1 + self.character.haste / 100)
@@ -412,7 +472,7 @@ class Simulation:
             self.update_time(0.01)
 
             if spell.channeled:
-                # Cast -> Cooldown Starst -> Channel Starts
+                # Cast -> Cooldown Starts -> Channel Starts
                 # -> Channel Finished -> Done.
 
                 if non_boosted_spell:
