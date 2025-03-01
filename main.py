@@ -336,15 +336,33 @@ def average_dps(
     if not stat_name and use_experimental:
         damage_sum = sum(damage for _, damage in sim.damage_table.items())
 
+        # Sort sim.damage_table by damage dealt from highest to lowest.
+        # Remove rows with 0 values
+        sorted_damage_table = {
+            k: v
+            for k, v in sorted(
+                sim.damage_table.items(),
+                key=lambda item: item[1],
+                reverse=True,
+            )
+            if v > 0
+        }
+
         table.add_row(
             "[bold yellow]-------- Experimental!",
             "[bold yellow]Do not trust! --------",
         )
-        table.add_row("[white]Damage Table", "[white]-------------")
-        for spell, damage in sim.damage_table.items():
-            table.add_row(
-                spell, f"[magenta]{round(damage, 3)} ({damage/damage_sum:.2%})"
+
+        # make first 3 rows bold
+        for i, (spell, damage) in enumerate(sorted_damage_table.items()):
+            spell_name = f"[bold]{spell}" if i < 3 else spell
+            damage = (
+                f"[bold dark_red]{round(damage, 3)} ({damage/damage_sum:.2%})"
+                if i < 3
+                else f"[magenta]{round(damage, 3)} ({damage/damage_sum:.2%})"
             )
+
+            table.add_row(spell_name, damage)
 
     return avg_dps
 

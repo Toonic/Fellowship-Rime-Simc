@@ -33,8 +33,13 @@ class Simulation:
             self.character.crit = 0
             self.character.spirit = 0
 
+    def _fill_damage_table(self, key: str, damage: float) -> None:
+        """Fill the damage table with the given key and damage."""
+
+        self.damage_table[key] = self.damage_table.get(key, 0) + damage
+
     # Whenever we gain orbs, we want to cast 3 Anime Spikes.
-    def gain_orb(self, do_spikes=True):
+    def gain_orb(self, do_spikes=True) -> None:
         """Ensures orb is gained during cast"""
 
         self.character.winter_orbs += 1
@@ -44,15 +49,22 @@ class Simulation:
                 + f"Count: {self.character.winter_orbs}"
             )
         self.update_time(0.01)
+
         if do_spikes:
-            for _ in range(self.character.anima_spikes.hits):
-                damage = self.character.anima_spikes.damage(self.character)
+            for _ in range(self.character.spells["anima spikes"].hits):
+                damage = self.character.spells["anima spikes"].damage(
+                    self.character
+                )
                 self.total_damage += damage
+                self._fill_damage_table(
+                    self.character.spells["anima spikes"].name, damage
+                )
+
                 if self.do_debug:
                     print(
                         f"Time {self.time:.2f}: "
-                        + f"Cast {self.character.anima_spikes.name}, "
-                        + f"dealing {damage:.2f} damage"
+                        + f"Cast {self.character.spells['anima spikes'].name},"
+                        + f" dealing {damage:.2f} damage"
                     )
 
         # If we are capped on Orbs, cap on 5.
@@ -91,7 +103,7 @@ class Simulation:
         anima_gained: float,
         orb_cost: int,
         is_cast: bool = True,
-    ) -> float:
+    ) -> None:
         """Does damage to the enemy (dummy)"""
 
         damage = self.apply_damage_multipliers(spell, damage)
@@ -99,18 +111,14 @@ class Simulation:
         self.update_spell_cooldowns(spell)
         aoe_count = self.determine_aoe_count(spell)
 
-        final_damage = 0
-
         for i in range(aoe_count):
             damage = self.apply_critical_hit(spell, damage)
             damage = self.apply_aoe_damage_reduction(spell, damage, i)
             self.total_damage += damage
-            final_damage += damage
+            self._fill_damage_table(spell.name, damage)
 
         self.manage_mana_and_orbs(spell, anima_gained, orb_cost)
         self.handle_debug_output(spell, damage, is_cast)
-
-        return final_damage
 
     def apply_damage_multipliers(self, spell: Spell, damage: float) -> float:
         """Apply damage multipliers based on active buffs and talents."""
@@ -253,12 +261,18 @@ class Simulation:
         for buff in self.buffs:
             if buff.name == "Ice Blitz":
                 for _ in range(int(anima_gained)):
-                    damage = self.character.anima_spikes.damage(self.character)
+                    damage = self.character.spells["anima spikes"].damage(
+                        self.character
+                    )
                     self.total_damage += damage
+                    self._fill_damage_table(
+                        self.character.spells["anima spikes"].name, damage
+                    )
+
                     if self.do_debug:
                         print(
                             f"Time {self.time:.2f}: "
-                            + f"Cast {self.character.anima_spikes.name}, "
+                            + f"Cast {self.character.spells['anima spikes'].name}, "
                             + f"dealing {damage:.2f} damage"
                         )
 
@@ -274,7 +288,7 @@ class Simulation:
         if spell.name == "Cold Snap":
             for _ in range(10):
                 self.do_dance_of_swallows()
-        if spell.name == "Freezing Torrent":
+        elif spell.name == "Freezing Torrent":
             self.do_dance_of_swallows()
 
     def handle_debug_output(
@@ -288,7 +302,7 @@ class Simulation:
                 + f"{damage:.2f} damage"
             )
 
-    def do_dance_of_swallows(self):
+    def do_dance_of_swallows(self) -> None:
         """Handles the Dance of Swallows."""
 
         for debuff in self.debuffs:
@@ -360,7 +374,7 @@ class Simulation:
         for spell in self.character.rotation:
             spell.reset_cooldown()
 
-        for spell in self.character.spells:
+        for spell in self.character.spells.values():
             self.damage_table[spell.name] = 0
 
         while self.time < self.duration:
@@ -421,8 +435,6 @@ class Simulation:
 
             self.update_time(0.01)
 
-            damage = 0
-
             if spell.channeled:
                 # Cast -> Cooldown Starts -> Channel Starts
                 # -> Channel Finished -> Done.
@@ -433,7 +445,7 @@ class Simulation:
                     spell.set_cooldown()
 
                 for _ in range(spell.ticks):
-                    damage += self.do_damage(
+                    self.do_damage(
                         spell,
                         spell.damage(self.character) / spell.ticks,
                         spell.mana_generation / spell.ticks,
@@ -485,7 +497,7 @@ class Simulation:
                 # -> Cooldown Starts -> Done
 
                 self.update_time(spell.effective_cast_time(self.character))
-                damage += self.do_damage(
+                self.do_damage(
                     spell,
                     spell.damage(self.character),
                     spell.mana_generation,
@@ -496,8 +508,6 @@ class Simulation:
                     non_boosted_spell.set_cooldown()
                 else:
                     spell.set_cooldown()
-
-            self.damage_table[spell.name] += damage
 
         dps = self.total_damage / self.duration
         if self.do_debug:
