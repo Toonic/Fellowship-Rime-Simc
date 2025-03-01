@@ -27,6 +27,8 @@ class Simulation:
         self.enemy_count = enemy_count
         self.is_deterministic = is_deterministic
 
+        self.damage_table = {}
+
         if is_deterministic:
             self.character.crit = 0
             self.character.spirit = 0
@@ -89,7 +91,7 @@ class Simulation:
         anima_gained: float,
         orb_cost: int,
         is_cast: bool = True,
-    ):
+    ) -> float:
         """Does damage to the enemy (dummy)"""
 
         damage = self.apply_damage_multipliers(spell, damage)
@@ -97,13 +99,18 @@ class Simulation:
         self.update_spell_cooldowns(spell)
         aoe_count = self.determine_aoe_count(spell)
 
+        final_damage = 0
+
         for i in range(aoe_count):
             damage = self.apply_critical_hit(spell, damage)
             damage = self.apply_aoe_damage_reduction(spell, damage, i)
             self.total_damage += damage
+            final_damage += damage
 
         self.manage_mana_and_orbs(spell, anima_gained, orb_cost)
         self.handle_debug_output(spell, damage, is_cast)
+
+        return final_damage
 
     def apply_damage_multipliers(self, spell: Spell, damage: float) -> float:
         """Apply damage multipliers based on active buffs and talents."""
@@ -353,6 +360,9 @@ class Simulation:
         for spell in self.character.rotation:
             spell.reset_cooldown()
 
+        for spell in self.character.spells:
+            self.damage_table[spell.name] = 0
+
         while self.time < self.duration:
             if self.gcd > 0:
                 self.update_time(self.gcd)
@@ -411,8 +421,10 @@ class Simulation:
 
             self.update_time(0.01)
 
+            damage = 0
+
             if spell.channeled:
-                # Cast -> Cooldown Starst -> Channel Starts
+                # Cast -> Cooldown Starts -> Channel Starts
                 # -> Channel Finished -> Done.
 
                 if non_boosted_spell:
@@ -421,7 +433,7 @@ class Simulation:
                     spell.set_cooldown()
 
                 for _ in range(spell.ticks):
-                    self.do_damage(
+                    damage += self.do_damage(
                         spell,
                         spell.damage(self.character) / spell.ticks,
                         spell.mana_generation / spell.ticks,
@@ -473,7 +485,7 @@ class Simulation:
                 # -> Cooldown Starts -> Done
 
                 self.update_time(spell.effective_cast_time(self.character))
-                self.do_damage(
+                damage += self.do_damage(
                     spell,
                     spell.damage(self.character),
                     spell.mana_generation,
@@ -484,6 +496,8 @@ class Simulation:
                     non_boosted_spell.set_cooldown()
                 else:
                     spell.set_cooldown()
+
+            self.damage_table[spell.name] += damage
 
         dps = self.total_damage / self.duration
         if self.do_debug:
