@@ -394,6 +394,7 @@ class Simulation:
             if spell is None:
                 if self.do_debug:
                     print(f"Time {self.time:.2f}: No ready spell available")
+                self.update_time(0.1)
                 continue
 
             self.gcd = 1.5 / (1 + self.character.haste / 100)
