@@ -395,19 +395,17 @@ class Simulation:
                 # Check for spells
                 for test_spell in self.character.rotation:
                     if spell.name != test_spell.name:
-                        print(
-                            spell.name,
-                            spell.effective_cast_time(self.character),
-                        )
                         if (
                             spell.effective_cast_time(self.character) == 0
-                            # and test_spell.remaining_cooldown > 0
+                            and test_spell.remaining_cooldown > 0
                             and test_spell.remaining_cooldown
                             < (1.5 / (1 + self.character.haste / 100))
                         ):
-                            print(
-                                f"Waiting for {test_spell.name} (GCD Trigger)"
-                            )
+                            if self.do_debug:
+                                print(
+                                    f"Waiting for {test_spell.name} "
+                                    + "(GCD Trigger)"
+                                )
                             self.update_time(test_spell.remaining_cooldown)
                             check = True
                             break
@@ -417,38 +415,22 @@ class Simulation:
                             < spell.effective_cast_time(self.character)
                             and test_spell.remaining_cooldown > 0
                         ):
-                            print(f"Waiting for {test_spell.name}")
+                            if self.do_debug:
+                                print(f"Waiting for {test_spell.name}")
                             self.update_time(test_spell.remaining_cooldown)
                             check = True
                             break
+                    else:
+                        break
 
                 if check:
                     continue
-
-            # if spell is not None and spell.name == "Frost Bolt":
-            #     nearest_ready_spell = min(
-            #         (
-            #             s
-            #             for s in self.character.rotation
-            #             if not s.is_ready(self.character, self.enemy_count)
-            #             and s.remaining_cooldown > 0
-            #         ),
-            #         key=lambda s: s.remaining_cooldown,
-            #     )
-            #     if (
-            #         nearest_ready_spell.remaining_cooldown
-            #         <= spell.effective_cast_time(self.character)
-            #     ):
-            #         self.update_time(nearest_ready_spell.remaining_cooldown)
-            #         continue
 
             if spell is None:
                 if self.do_debug:
                     print(f"Time {self.time:.2f}: No ready spell available")
                 self.update_time(0.1)
                 continue
-
-            print(f"Doing {spell.name}")
 
             self.gcd = 1.5 / (1 + self.character.haste / 100)
 
