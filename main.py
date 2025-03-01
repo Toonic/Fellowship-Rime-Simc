@@ -140,6 +140,7 @@ def main(arguments: argparse.Namespace):
                 arguments.duration,
                 arguments.run_count,
                 arguments.enemy_count,
+                arguments.experimental_feature,
             )
         case "stat_weights":
             stat_weights(
@@ -148,6 +149,7 @@ def main(arguments: argparse.Namespace):
                 arguments.duration,
                 arguments.run_count,
                 arguments.stat_weights_gain,
+                arguments.experimental_feature,
                 arguments.enemy_count,
             )
         case "debug_sim":
@@ -168,6 +170,7 @@ def stat_weights(
     duration: int,
     run_count: int,
     stat_increase: int,
+    use_experimental: bool,
     enemy_count: Optional[int] = None,
 ) -> None:
     """Calculates the stat weights of the character."""
@@ -175,7 +178,13 @@ def stat_weights(
     target_count = 4 if enemy_count is None else enemy_count
     character_base = character
     base_dps = average_dps(
-        table, character_base, duration, run_count, target_count, "base"
+        table,
+        character_base,
+        duration,
+        run_count,
+        target_count,
+        use_experimental=use_experimental,
+        stat_name="base",
     )
 
     def update_stats(
@@ -216,7 +225,8 @@ def stat_weights(
             duration,
             run_count,
             target_count,
-            stat_name,
+            use_experimental=use_experimental,
+            stat_name=stat_name,
         )
 
     int_dps = update_stats(character, stat_increase, "intellect")
@@ -265,6 +275,7 @@ def average_dps(
     duration: int,
     run_count: int,
     enemy_count: int,
+    use_experimental: bool,
     stat_name: Optional[str] = None,
 ) -> float:
     """Runs a simulation and returns the average DPS."""
@@ -320,12 +331,14 @@ def average_dps(
         end_section=True,
     )
 
-    if not stat_name:
+    # Experimental: Damage Table
+    # ---------------------------
+    if not stat_name and use_experimental:
         damage_sum = sum(damage for _, damage in sim.damage_table.items())
 
         table.add_row(
             "[bold yellow]-------- Experimental!",
-            "[bold yellow]----------------",
+            "[bold yellow]Do not trust! --------",
         )
         table.add_row("[white]Damage Table", "[white]-------------")
         for spell, damage in sim.damage_table.items():
@@ -402,6 +415,12 @@ if __name__ == "__main__":
         type=float,
         default=20,
         help="Gain of stat weights for the simulation.",
+    )
+    parser.add_argument(
+        "-x",
+        "--experimental-feature",
+        action="store_true",
+        help="Enable experimental features such as the damage table.",
     )
 
     # Parse arguments.
