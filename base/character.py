@@ -2,11 +2,12 @@
 
 from abc import ABC, abstractmethod
 from typing import Dict, List, TYPE_CHECKING
-from enum import Enum
+
+# from enum import Enum
 
 
 if TYPE_CHECKING:
-    from .spell import BaseSpell
+    from spell import BaseSpell
 
 
 class BaseCharacter(ABC):
@@ -36,14 +37,12 @@ class BaseCharacter(ABC):
         self.buffs: Dict[str, BaseSpell] = {}
 
     @abstractmethod
-    def add_spell_to_rotation(self, spell: Enum) -> None:
-        """Adds a spell to the character's rotation."""
+    def configure_spell_book(self) -> None:
+        """Adds a spells to the character's spell book."""
 
-    @abstractmethod
     def add_talent(self, talent: str) -> None:
         """Adds a talent to the character's available talents."""
 
-    @abstractmethod
     def update_stats(
         self,
         intellect: int,

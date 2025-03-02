@@ -2,6 +2,7 @@ from base import BaseCharacter
 from base import BaseSpell
 
 
+# Defines the Rime Character class.
 class Rime(BaseCharacter):
     """Stat Point DR"""
 
@@ -19,30 +20,73 @@ class Rime(BaseCharacter):
         self.anima = 0
         self.winter_orbs = 0
 
+    def configure_spell_book(self):
+        self.spells = {
+            Frost_Bolt().simfell_name: Frost_Bolt(),
+            Cold_Snap().simfell_name: Cold_Snap(),
+            Freezing_Torrent().simfell_name: Freezing_Torrent(),
+            Bursting_Ice().simfell_name: Bursting_Ice(),
+            Glacial_Blast().simfell_name: Glacial_Blast(),
+            Ice_Comet().simfell_name: Ice_Comet(),
+            Dance_Of_Swallows().simfell_name: Dance_Of_Swallows(),
+            Ice_Blitz().simfell_name: Ice_Blitz(),
+        }
 
+    def gain_anima(self, amount):
+        self.anima += amount
+        if self.anima >= 10:
+            self.anima = 0
+            self.gain_winter_orbs(1)
+            # TODO: Cast Anima Spikes.
+
+    def gain_winter_orbs(self, amount):
+        self.winter_orbs += amount
+        if self.winter_orbs > 5:
+            self.winter_orbs = 5
+
+    def lose_winter_orbs(self, amount):
+        self.winter_orbs -= amount
+        if self.winter_orbs < 0:
+            self.winter_orbs = 0
+
+
+# Defines the RimeSpell class.
+# Rime gains anima for casting spells and uses winter_orbs to cast spells.
 class RimeSpell(BaseSpell):
     """Base information for Rime Spells"""
 
-    anima_gained = 0
+    anima_gain = 0
     winter_orb_cost = 0
+    anima_per_tick = 0
 
     def __init__(
         self,
-        anima_gained=0,
+        anima_gain=0,
         winter_orb_cost=0,
+        anima_per_tick=0,
         *args,
         **kwargs,
     ):
-        super().__init__(*args, **kwargs)
-        self.anima_gained = anima_gained
+        self.anima_gain = anima_gain
         self.winter_orb_cost = winter_orb_cost
+        self.anima_per_tick = anima_per_tick
+        super().__init__(*args, **kwargs)
+
+    def on_cast_complete(self, character):
+        character.gain_anima(self.anima_gain)  # Gain Anima on Complete.
+        if self.winter_orb_cost > 0:  # Lose Winter Orbs on Complete.
+            character.lose_winter_orbs(self.winter_orb_cost)
+        if self.winter_orb_cost < 0:  # Gain Winter Orbs on Complete.
+            character.gain_winter_orbs(abs(self.winter_orb_cost))
 
 
 class Frost_Bolt(RimeSpell):
-    """Frostbolt Spell"""
+    """Frost Bolt Spell"""
 
     def __init__(self):
-        super().__init__("Frostbolt", cast_time=1.5, damage_percent=73, anima_gained=3)
+        super().__init__(
+            "Frost Bolt", cast_time=1.5, damage_percent=73, anima_gain=3
+        )
 
 
 class Cold_Snap(RimeSpell):
@@ -61,10 +105,13 @@ class Freezing_Torrent(RimeSpell):
             cast_time=2.0,
             cooldown=10,
             damage_percent=390,
-            anima_gained=6,
+            anima_per_tick=1,
             channeled=True,
             ticks=6,
         )
+
+    def on_tick(self, character):
+        character.anima += self.anima_per_tick
 
 
 # TODO: Make this a Debuff instead of a Spell.
@@ -77,9 +124,8 @@ class Bursting_Ice(RimeSpell):
             cast_time=2.0,
             cooldown=15,
             damage_percent=366,
-            anima_gained=6,
+            anima_per_tick=1,
             ticks=6,
-            is_debuff=True,
             duration=3,
         )
 
@@ -89,7 +135,10 @@ class Glacial_Blast(RimeSpell):
 
     def __init__(self):
         super().__init__(
-            "Glacial Blast", cast_time=2.0, damage_percent=504, winter_orb_cost=2
+            "Glacial Blast",
+            cast_time=2.0,
+            damage_percent=504,
+            winter_orb_cost=2,
         )
 
     def crit_chance_modifiers(self, character, crit_chance):

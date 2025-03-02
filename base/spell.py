@@ -46,9 +46,28 @@ class BaseSpell(ABC):
     def effective_cast_time(self, character: "BaseCharacter") -> float:
         """Returns the effective cast time of the spell. Including any modifiers."""
 
+    def cast(self, character: "BaseCharacter", enemy_count: int) -> None:
+        """Casts the spell."""
+        # TODO: Pseudo Code. - I want to bring in the simulation.
+        #       Possibly even the character tot he spell.
+        #       I dislike passing in character for all of these functions.
+
+        # if self.channeled:
+        #     tick_interval = self.cast_time / self.ticks
+        #     self.set_cooldown() #Channeled spells cooldown starts on cast.
+        #     for tick in range(self.ticks):
+        #         simulation.progress_time(tick_interval)
+        #         simulation.apply_damage(self.damage(character) / self.ticks)
+        #         self.on_tick_effect(character)
+        # else:
+        #     simulation.progress_time(self.cast_time)
+        #     simulation.apply_damage(self.damage(character))
+        #     self.set_cooldown()
+
     @final
     def damage(self, character: "BaseCharacter") -> float:
         """Returns the damage of the spell. Including any modifiers."""
+
         damage = self.damage_percent  # The base damage of the spell.
         damage = self.damage_modifiers(
             character, damage
@@ -69,7 +88,9 @@ class BaseSpell(ABC):
         return damage
 
     @final
-    def damage_modified_player_stats(self, character: "BaseCharacter", damage) -> float:
+    def damage_modified_player_stats(
+        self, character: "BaseCharacter", damage
+    ) -> float:
         """Returns the damage of the spell after being modified by player stats"""
         modified_damage = damage * character.main_stat
         modified_damage = modified_damage * (1 + character.expertise / 100)
@@ -82,9 +103,19 @@ class BaseSpell(ABC):
         crit_chance = self.crit_chance_modifiers(character, crit_chance)
         return character.crit
 
-    def crit_chance_modifiers(self, character: "BaseCharacter", crit_chance) -> float:
+    def crit_chance_modifiers(
+        self, character: "BaseCharacter", crit_chance
+    ) -> float:
         """Returns the crit chance of the spell. Including any modifiers."""
         return crit_chance
+
+    def on_tick(self, character: "BaseCharacter") -> None:
+        """The effect of the spell on each tick."""
+        pass
+
+    def on_cast_complete(self, character: "BaseCharacter") -> None:
+        """The effect of the spell when the cast is complete."""
+        pass
 
     def set_cooldown(self) -> None:
         """Sets the cooldown of the spell."""
@@ -102,16 +133,18 @@ class BaseSpell(ABC):
 class BaseDebuff(BaseSpell):
     """Abstract base class for all debuffs."""
 
-    time_remaining = 0
+    remaining_time = 0
 
-    def __init__(self, duration=0, *args, **kwargs):  # The duration of the buff/debuff.
+    def __init__(
+        self, duration=0, *args, **kwargs
+    ):  # The duration of the buff/debuff.
         super().__init__(*args, **kwargs)
         self.duration = duration
 
     def apply_debuff(self) -> None:
         """Applies the debuff to the target."""
-        self.time_remaining = self.duration
+        self.remaining_time = self.duration
 
     def update_remaining_duration(self, delta_time: int) -> None:
         """Decreases the remaining buff/debuff duration by the delta time."""
-        self.time_remaining -= delta_time
+        self.remaining_time -= delta_time
