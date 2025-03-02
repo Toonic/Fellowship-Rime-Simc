@@ -52,7 +52,7 @@ class BaseSpell(ABC):
         damage = self.damage_modified_player_stats(character, damage) #The damage after being modified by player stats.
 
         #Roll for Crit Damage.
-        if random.uniform(0, 100) < get_crit_chance(character):
+        if random.uniform(0, 100) < self.get_crit_chance(character):
             damage = damage * 2 #TODO: Include Crit Power.
         return damage
     
