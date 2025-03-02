@@ -2,12 +2,12 @@
 
 from enum import Enum
 
-from base import Character
+from .character import RimeCharacter
 
 
 class RimePreset(Enum):
     """Enum for Rime's presets."""
 
-    DEFAULT = Character(
+    DEFAULT = RimeCharacter(
         intellect=300, crit=90, expertise=160, haste=120, spirit=50
     )

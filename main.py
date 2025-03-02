@@ -14,20 +14,106 @@ from rich.progress import (
     MofNCompleteColumn,
 )
 
-from base import Character
-from characters.Rime import RimeSpell, RimeTalent
+
+from characters.Rime import RimeSpellEnum, RimeTalent, RimeCharacter
 from characters.Rime.preset import RimePreset
-from Sim import Simulation
+from characters.Rime.simulation import RimeSimulation
+
+from simfell_parser.simfile_parser import SimFileParser
+from simfell_parser.model import SimFellConfiguration, Gear
 
 
-def main(arguments: argparse.Namespace):
-    """Main function."""
+def handle_configuration(
+    arguments: argparse.Namespace,
+) -> SimFellConfiguration:
+    """Handles the configuration based on the arguments."""
 
-    if arguments.preset and arguments.custom_character:
+    checked_arguments = [
+        arguments.preset,
+        arguments.custom_character,
+        arguments.talent_tree,
+        arguments.enemy_count,
+        arguments.duration,
+        arguments.run_count,
+    ]
+
+    if arguments.simfile and any(checked_arguments):
         raise ValueError(
-            "Cannot provide both preset and custom character. "
+            "Cannot provide both SimFile configuration and custom. "
             + "Please provide only one."
         )
+    if not arguments.simfile and not any(checked_arguments):
+        raise ValueError(
+            "Must provide either a preset or a SimFell file. "
+            + "Please provide one."
+        )
+
+    # Parse the simfile if provided.
+    if arguments.simfile:
+        simfile_parser = SimFileParser(arguments.simfile)
+        configuration = simfile_parser.parse()
+    else:
+        if arguments.custom_character:
+            try:
+                stats = [
+                    int(stat) for stat in arguments.custom_character.split("-")
+                ]
+            except ValueError as e:
+                raise ValueError(
+                    "Custom character must be formatted as "
+                    + "intellect-crit-expertise-haste-spirit"
+                ) from e
+
+            if len(stats) != 5:
+                raise ValueError(
+                    "Custom character must be formatted as "
+                    + "intellect-crit-expertise-haste-spirit"
+                )
+            for stat in stats:
+                if stat < 0:
+                    raise ValueError(
+                        "All stats must be positive integers. "
+                        + f"Invalid stat: {stat}"
+                    )
+
+            character = RimeCharacter(
+                intellect=stats[0],
+                crit=stats[1],
+                expertise=stats[2],
+                haste=stats[3],
+                spirit=stats[4],
+            )
+        elif arguments.preset:
+            # Use preset if provided.
+            character = RimePreset[arguments.preset].value
+        else:
+            character = RimePreset.DEFAULT.value
+
+        configuration = SimFellConfiguration(
+            name="Custom Configuration",
+            hero="Rime",
+            intellect=character.intellect,
+            crit=character.crit_points,
+            expertise=character.expertise_points,
+            haste=character.haste_points,
+            spirit=character.spirit_points,
+            enemies=arguments.enemy_count,
+            duration=arguments.duration,
+            talents=arguments.talent_tree,
+            run_count=arguments.run_count,
+            trinket1=None,
+            trinket2=None,
+            actions=[],
+            gear=Gear(helmet=None, shoulder=None),
+        )
+
+    return configuration
+
+
+def main(arguments: argparse.Namespace) -> None:
+    """Main function."""
+
+    configuration = handle_configuration(arguments)
 
     print()
 
@@ -39,8 +125,9 @@ def main(arguments: argparse.Namespace):
     table.add_column("Value", style="yellow", justify="center")
 
     table.add_row("Simulation Type", arguments.simulation_type)
-    table.add_row("Enemy Count", str(arguments.enemy_count))
-    table.add_row("Duration", str(arguments.duration))
+    table.add_row("Enemy Count", str(configuration.enemies))
+    table.add_row("Duration", str(configuration.duration))
+    table.add_row("Run Count", str(configuration.run_count))
     if arguments.simulation_type == "stat_weights":
         table.add_row("Stat Weights Gain", str(arguments.stat_weights_gain))
     table.add_row(
@@ -49,47 +136,19 @@ def main(arguments: argparse.Namespace):
         end_section=True,
     )
 
-    if arguments.custom_character:
-        try:
-            stats = [
-                int(stat) for stat in arguments.custom_character.split("-")
-            ]
-        except ValueError as e:
-            raise ValueError(
-                "Custom character must be formatted as "
-                + "intellect-crit-expertise-haste-spirit"
-            ) from e
-
-        if len(stats) != 5:
-            raise ValueError(
-                "Custom character must be formatted as "
-                + "intellect-crit-expertise-haste-spirit"
-            )
-        for stat in stats:
-            if stat < 0:
-                raise ValueError(
-                    "All stats must be positive integers. "
-                    + f"Invalid stat: {stat}"
-                )
-
-        character = Character(
-            intellect=stats[0],
-            crit=stats[1],
-            expertise=stats[2],
-            haste=stats[3],
-            spirit=stats[4],
-        )
-    elif arguments.preset:
-        # Use preset if provided.
-        character = RimePreset[arguments.preset].value
-    else:
-        character = RimePreset.DEFAULT.value
+    character = RimeCharacter(
+        intellect=configuration.intellect,
+        crit=configuration.crit,
+        expertise=configuration.expertise,
+        haste=configuration.haste,
+        spirit=configuration.spirit,
+    )
 
     # Parse the talent tree argument.
     # e.g. Combination of "2-12-3" means Talent 1.2, 2.1, 2.2, 3.3
     # = Coalescing Ice, Unrelenting Ice, Icy Flow, Soulfrost Torrent
-    if arguments.talent_tree:
-        talents = arguments.talent_tree.split("-")
+    if configuration.talents:
+        talents = configuration.talents.split("-")
         for index, talent in enumerate(talents):
             for i in talent:
                 rime_talent = RimeTalent.get_by_identifier(f"{index+1}.{i}")
@@ -97,15 +156,15 @@ def main(arguments: argparse.Namespace):
                     character.add_talent(rime_talent.value.name)
 
     # Spells casted in order.
-    character.add_spell_to_rotation(RimeSpell.WRATH_OF_WINTER)
-    character.add_spell_to_rotation(RimeSpell.ICE_BLITZ)
-    character.add_spell_to_rotation(RimeSpell.DANCE_OF_SWALLOWS)
-    character.add_spell_to_rotation(RimeSpell.COLD_SNAP)
-    character.add_spell_to_rotation(RimeSpell.BURSTING_ICE)
-    character.add_spell_to_rotation(RimeSpell.FREEZING_TORRENT)
-    character.add_spell_to_rotation(RimeSpell.ICE_COMET)
-    character.add_spell_to_rotation(RimeSpell.GLACIAL_BLAST)
-    character.add_spell_to_rotation(RimeSpell.FROST_BOLT)
+    character.add_spell_to_rotation(RimeSpellEnum.WRATH_OF_WINTER)
+    character.add_spell_to_rotation(RimeSpellEnum.ICE_BLITZ)
+    character.add_spell_to_rotation(RimeSpellEnum.DANCE_OF_SWALLOWS)
+    character.add_spell_to_rotation(RimeSpellEnum.COLD_SNAP)
+    character.add_spell_to_rotation(RimeSpellEnum.BURSTING_ICE)
+    character.add_spell_to_rotation(RimeSpellEnum.FREEZING_TORRENT)
+    character.add_spell_to_rotation(RimeSpellEnum.ICE_COMET)
+    character.add_spell_to_rotation(RimeSpellEnum.GLACIAL_BLAST)
+    character.add_spell_to_rotation(RimeSpellEnum.FROST_BOLT)
 
     table.add_row(
         "Talent Tree",
@@ -113,7 +172,7 @@ def main(arguments: argparse.Namespace):
         end_section=True,
     )
     table.add_row(
-        "Custom Character",
+        "Character",
         (
             "\n".join(
                 f"{key}: {value}"
@@ -125,8 +184,6 @@ def main(arguments: argparse.Namespace):
                     "spirit": character.spirit_points,
                 }.items()
             )
-            if arguments.custom_character
-            else "N/A"
         ),
         end_section=True,
     )
@@ -137,26 +194,26 @@ def main(arguments: argparse.Namespace):
             average_dps(
                 table,
                 character,
-                arguments.duration,
-                arguments.run_count,
-                arguments.enemy_count,
+                configuration.duration,
+                configuration.run_count,
+                configuration.enemies,
                 arguments.experimental_feature,
             )
         case "stat_weights":
             stat_weights(
                 table,
                 character,
-                arguments.duration,
-                arguments.run_count,
+                configuration.duration,
+                configuration.run_count,
                 arguments.stat_weights_gain,
                 arguments.experimental_feature,
-                arguments.enemy_count,
+                configuration.enemies,
             )
         case "debug_sim":
             debug_sim(
                 character,
-                arguments.duration,
-                arguments.enemy_count,
+                configuration.duration,
+                configuration.enemies,
             )
 
     # Print the final results
@@ -166,7 +223,7 @@ def main(arguments: argparse.Namespace):
 
 def stat_weights(
     table: Table,
-    character: Character,
+    character: RimeCharacter,
     duration: int,
     run_count: int,
     stat_increase: int,
@@ -188,7 +245,7 @@ def stat_weights(
     )
 
     def update_stats(
-        character: Character, stat_increase: int, stat_name: str
+        character: RimeCharacter, stat_increase: int, stat_name: str
     ) -> float:
         character_updated = character
         character_updated.update_stats(
@@ -254,12 +311,14 @@ def stat_weights(
     )
 
 
-def debug_sim(character: Character, duration: int, enemy_count: int) -> None:
+def debug_sim(
+    character: RimeCharacter, duration: int, enemy_count: int
+) -> None:
     """Runs a debug simulation.
     Creates a deterministic simulation with 0 crit and spirit.
     """
 
-    sim = Simulation(
+    sim = RimeSimulation(
         character,
         duration=duration,
         enemy_count=enemy_count,
@@ -271,7 +330,7 @@ def debug_sim(character: Character, duration: int, enemy_count: int) -> None:
 
 def average_dps(
     table: Table,
-    character: Character,
+    character: RimeCharacter,
     duration: int,
     run_count: int,
     enemy_count: int,
@@ -300,7 +359,7 @@ def average_dps(
 
         for _ in range(run_count):
             character_copy = deepcopy(character)
-            sim = Simulation(
+            sim = RimeSimulation(
                 character_copy,
                 duration=duration,
                 enemy_count=enemy_count,
@@ -386,7 +445,6 @@ if __name__ == "__main__":
         type=int,
         default=1,
         help="Number of enemies to simulate.",
-        required=True,
     )
     parser.add_argument(
         "-t",
@@ -439,6 +497,13 @@ if __name__ == "__main__":
         "--experimental-feature",
         action="store_true",
         help="Enable experimental features such as the damage table.",
+    )
+    parser.add_argument(
+        "-f",
+        "--simfile",
+        type=str,
+        default="",
+        help="Path to the SimFell file.",
     )
 
     # Parse arguments.

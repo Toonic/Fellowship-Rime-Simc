@@ -2,41 +2,25 @@
 
 import random
 from copy import deepcopy
-from base import Character, Spell
+
+from base import BaseSimulation
+from characters.Rime import RimeCharacter, RimeSpell
 
 
-class Simulation:
+class RimeSimulation(BaseSimulation):
     """Simulates the character's damage output."""
 
     def __init__(
         self,
-        character: Character,
+        character: RimeCharacter,
         duration: int,
         enemy_count: int = 1,
         do_debug: bool = True,
         is_deterministic: bool = False,
     ):
-        self.character = character
-        self.time = 0
-        self.duration = duration
-        self.total_damage = 0
-        self.do_debug = do_debug
-        self.gcd = 0
-        self.debuffs = []
-        self.buffs = []
-        self.enemy_count = enemy_count
-        self.is_deterministic = is_deterministic
-
-        self.damage_table = {}
-
-        if is_deterministic:
-            self.character.crit = 0
-            self.character.spirit = 0
-
-    def _fill_damage_table(self, key: str, damage: float) -> None:
-        """Fill the damage table with the given key and damage."""
-
-        self.damage_table[key] = self.damage_table.get(key, 0) + damage
+        super().__init__(
+            character, duration, enemy_count, do_debug, is_deterministic
+        )
 
     # Whenever we gain orbs, we want to cast 3 Anime Spikes.
     def gain_orb(self, do_spikes=True) -> None:
@@ -98,7 +82,7 @@ class Simulation:
     # Handle all Damage.
     def do_damage(
         self,
-        spell: Spell,
+        spell: RimeSpell,
         damage: float,
         anima_gained: float,
         orb_cost: int,
@@ -120,7 +104,9 @@ class Simulation:
         self.manage_mana_and_orbs(spell, anima_gained, orb_cost)
         self.handle_debug_output(spell, damage, is_cast)
 
-    def apply_damage_multipliers(self, spell: Spell, damage: float) -> float:
+    def apply_damage_multipliers(
+        self, spell: RimeSpell, damage: float
+    ) -> float:
         """Apply damage multipliers based on active buffs and talents."""
 
         damage_multipliers = {
@@ -157,17 +143,17 @@ class Simulation:
             )
         return damage
 
-    def apply_glacial_assault(self, spell: Spell) -> None:
+    def apply_glacial_assault(self, spell: RimeSpell) -> None:
         """Apply Glacial Assault buff if conditions are met."""
 
         if (
             spell.name == "Cold Snap"
             and "Glacial Assault" in self.character.talents
         ):
-            self.character.glacial_assault_buff.apply_debuff()
-            self.buffs.append(self.character.glacial_assault_buff)
+            self.character.buffs["glacial assault"].apply_debuff()
+            self.buffs.append(self.character.buffs["glacial assault"])
 
-    def update_spell_cooldowns(self, spell: Spell) -> None:
+    def update_spell_cooldowns(self, spell: RimeSpell) -> None:
         """Update cooldowns for specific spells."""
 
         cooldown_updates = {
@@ -186,7 +172,7 @@ class Simulation:
                     if character_spell.name == spell_name:
                         character_spell.update_cooldown(cooldown)
 
-    def determine_aoe_count(self, spell: Spell) -> int:
+    def determine_aoe_count(self, spell: RimeSpell) -> int:
         """Determine the number of targets affected by AoE spells."""
 
         return {
@@ -204,7 +190,7 @@ class Simulation:
             ),
         }.get(spell.name, 1)
 
-    def apply_critical_hit(self, spell: Spell, damage: float) -> float:
+    def apply_critical_hit(self, spell: RimeSpell, damage: float) -> float:
         """Calculate and apply critical hit damage."""
 
         crit_chance = self.character.crit
@@ -228,12 +214,12 @@ class Simulation:
                 if not any(
                     buff.name == "Soulfrost Torrent" for buff in self.buffs
                 ):
-                    self.character.soulfrost_buff.apply_debuff()
-                    self.buffs.append(self.character.soulfrost_buff)
+                    self.character.buffs["soulfrost buff"].apply_debuff()
+                    self.buffs.append(self.character.buffs["soulfrost buff"])
         return damage
 
     def apply_aoe_damage_reduction(
-        self, spell: Spell, damage: float, index: int
+        self, spell: RimeSpell, damage: float, index: int
     ) -> float:
         """Apply AoE damage reduction if applicable."""
 
@@ -246,7 +232,7 @@ class Simulation:
         return damage
 
     def manage_mana_and_orbs(
-        self, spell: Spell, anima_gained: float, orb_cost: int
+        self, spell: RimeSpell, anima_gained: float, orb_cost: int
     ) -> None:
         """Manage mana and orb resources."""
 
@@ -290,7 +276,7 @@ class Simulation:
             self.do_dance_of_swallows()
 
     def handle_debug_output(
-        self, spell: Spell, damage: float, is_cast: bool
+        self, spell: RimeSpell, damage: float, is_cast: bool
     ) -> None:
         """Output debug information if debugging is enabled."""
         if self.do_debug:
@@ -444,7 +430,7 @@ class Simulation:
                 buff.name == "Soulfrost Torrent" for buff in self.buffs
             ):
                 non_boosted_spell = deepcopy(spell)
-                spell = self.character.soulfrost
+                spell = self.character.spells["soulfrost torrent"]
                 # Remove Soulfrost from buffs
                 self.buffs = [
                     buff
@@ -467,7 +453,7 @@ class Simulation:
                         if buff.name != "Glacial Assault"
                     ]
                     non_boosted_spell = deepcopy(spell)
-                    spell = self.character.boosted_blast
+                    spell = self.character.buffs["boosted glacial blast"]
 
             self.update_time(0.01)
 

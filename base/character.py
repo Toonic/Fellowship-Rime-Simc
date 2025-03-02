@@ -1,69 +1,49 @@
 """Module for the Character class."""
 
+from abc import ABC, abstractmethod
 from typing import Dict, List, TYPE_CHECKING
+from enum import Enum
 
-from characters.Rime import RimeSpell, RimeBuff
 
 if TYPE_CHECKING:
-    from .spell import Spell
+    from .spell import BaseSpell
 
 
-class Character:
-    """Base class for all characters."""
+class BaseCharacter(ABC):
+    """Abstract base class for all characters."""
 
-    intellectPerPoint = 1
-    critPerPoint = 0.21
-    expertisePerPoint = 0.21
-    hastePerPoint = 0.21
-    spiritPerPoint = 0.21
-
-    def __init__(self, intellect, crit, expertise, haste, spirit):
-        self.intellect_points = intellect
-        self.intellect = intellect * Character.intellectPerPoint
+    def __init__(self, main_stat, crit, expertise, haste, spirit):
+        self.main_stat = main_stat
+        self.main_stat = main_stat * self.main_stat_per_point
         self.crit_points = crit
-        self.crit = (  # % chance (e.g., 5 for 5%)
-            crit * Character.critPerPoint
-        ) + 5
+        self.crit = (crit * self.critPerPoint) + 5  # % chance (e.g., 5 for 5%)
         self.expertise_points = expertise
         self.expertise = (  # % increase to damage
-            expertise * Character.expertisePerPoint
+            expertise * self.expertisePerPoint
         )
         self.haste_points = haste
         # % increase to cast speed
-        self.haste = haste * Character.hastePerPoint
-        self.spirit = spirit * Character.spiritPerPoint
+        self.haste = haste * self.hastePerPoint
+        self.spirit = spirit * self.spiritPerPoint
         self.spirit_points = spirit
-        self.mana = 0
-        self.winter_orbs = 0
         # This will hold the character's available spells.
-        self.spells: Dict[str, Spell] = {
-            spell.value.name.lower(): spell.value for spell in RimeSpell
-        }
+        self.spells: Dict[str, BaseSpell] = {}
         # This will hold the character's rotation.
-        self.rotation: List[Spell] = []
+        self.rotation: List[BaseSpell] = []
         # All the talents.
         self.talents: List[str] = []
+        # Buffs
+        self.buffs: Dict[str, BaseSpell] = {}
 
-        self.soulfrost = RimeSpell.SOULFROST_TORRENT.value
-        self.boosted_blast = RimeBuff.BOOSTED_BLAST.value
-
-        self.soulfrost_buff = RimeBuff.SOULFROST_BUFF.value
-        self.glacial_assault_buff = RimeBuff.GLACIAL_ASSAULT_BUFF.value
-        self.comet_bonus = RimeBuff.COMET_BONUS.value
-
-    def add_spell_to_rotation(self, spell: RimeSpell) -> None:
+    @abstractmethod
+    def add_spell_to_rotation(self, spell: Enum) -> None:
         """Adds a spell to the character's rotation."""
 
-        if spell.value.name.lower() not in self.spells:
-            raise ValueError(f"Spell {spell} not found in available spells.")
-
-        self.rotation.append(spell.value)
-
+    @abstractmethod
     def add_talent(self, talent: str) -> None:
         """Adds a talent to the character's available talents."""
 
-        self.talents.append(talent)
-
+    @abstractmethod
     def update_stats(
         self,
         intellect: int,
@@ -73,9 +53,3 @@ class Character:
         spirit: int,
     ) -> None:
         """Updates the character's stats."""
-
-        self.intellect = intellect * Character.intellectPerPoint
-        self.crit = crit * Character.critPerPoint
-        self.expertise = expertise * Character.expertisePerPoint
-        self.haste = haste * Character.hastePerPoint
-        self.spirit = spirit * Character.spiritPerPoint

@@ -1,151 +1,99 @@
 """Module for the spells for Rime character."""
 
-from enum import Enum
+from typing import TYPE_CHECKING
 
-from base.spell import Spell
+from base import BaseSpell
+
+if TYPE_CHECKING:
+    from .character import RimeCharacter
 
 
-class RimeSpell(Enum):
-    """
-    Enum for all the spells in Rime.
-    """
+class OLD_RimeSpell(BaseSpell):
+    """Base class for all spells."""
 
-    WRATH_OF_WINTER = Spell(
-        "Wrath of Winter",
-        cast_time=0,
-        cooldown=600,
-        mana_generation=0,
-        winter_orb_cost=0,
-        damage_percent=0,
-        is_buff=True,
-        ticks=10,
-        debuff_duration=20,
-    )
-    ICE_BLITZ = Spell(
-        "Ice Blitz",
-        cast_time=0,
-        cooldown=120,
-        mana_generation=0,
-        winter_orb_cost=0,
-        damage_percent=0,
-        is_buff=True,
-        ticks=0,
-        debuff_duration=20,
-    )
-    DANCE_OF_SWALLOWS = Spell(
-        "Dance of Swallows",
-        cast_time=0,
-        cooldown=60,
-        mana_generation=0,
-        winter_orb_cost=2,
-        damage_percent=53,
-        is_debuff=True,
-        ticks=0,
-        debuff_duration=20,
-    )
-    COLD_SNAP = Spell(
-        "Cold Snap",
-        cast_time=0,
-        cooldown=8,
-        mana_generation=0,
-        winter_orb_cost=-1,
-        damage_percent=204,
-    )
-    ICE_COMET = Spell(
-        "Ice Comet",
+    def __init__(
+        self,
+        name="",
         cast_time=0,
         cooldown=0,
         mana_generation=0,
-        winter_orb_cost=3,
-        damage_percent=300,
-        min_target_count=3,
-        max_target_count=1000,
-    )
-    GLACIAL_BLAST = Spell(
-        "Glacial Blast",
-        cast_time=2.0,
-        cooldown=0,
-        mana_generation=0,
-        winter_orb_cost=2,
-        damage_percent=504,
+        winter_orb_cost=0,
+        damage_percent=0,
+        hits=1,
+        channeled=False,
+        ticks=0,
+        is_debuff=False,
+        debuff_duration=0,
+        do_debuff_damage=False,
+        is_buff=False,
         min_target_count=1,
-        max_target_count=2,
-    )
-    BURSTING_ICE = Spell(
-        "Bursting Ice",
-        cast_time=2.0,
-        cooldown=15,
-        mana_generation=6,
-        winter_orb_cost=0,
-        damage_percent=366,
-        is_debuff=True,
-        ticks=6,
-        debuff_duration=3,
-        do_debuff_damage=True,
-    )
-    FREEZING_TORRENT = Spell(
-        "Freezing Torrent",
-        cast_time=2.0,
-        cooldown=10,
-        mana_generation=6,
-        winter_orb_cost=0,
-        damage_percent=390,
-        channeled=True,
-        ticks=6,
-    )
-    FROST_BOLT = Spell(
-        "Frost Bolt",
-        cast_time=1.5,
-        cooldown=0,
-        mana_generation=3,
-        winter_orb_cost=0,
-        damage_percent=73,
-    )
-    ANIMA_SPIKES = Spell(
-        "Anima Spikes",
-        cast_time=0,
-        cooldown=0,
-        mana_generation=0,
-        winter_orb_cost=0,
-        damage_percent=36,
-        hits=3,
-    )
-    SOULFROST_TORRENT = Spell(
-        "Soulfrost Torrent",
-        cast_time=4.0,
-        cooldown=10,
-        mana_generation=11,
-        winter_orb_cost=0,
-        damage_percent=1430,  # Damage is set to 1560 because of ingame bug.
-        channeled=True,
-        ticks=11,
-    )
+        max_target_count=1000,
+    ):
+        super().__init__(
+            name,
+            cast_time,
+            cooldown,
+            damage_percent,
+            hits,
+            channeled,
+            ticks,
+            is_debuff,
+            debuff_duration,
+            do_debuff_damage,
+            is_buff,
+            min_target_count,
+            max_target_count,
+        )
 
+        self.mana_generation = mana_generation
+        self.winter_orb_cost = winter_orb_cost
 
-class RimeBuff(Enum):
-    """
-    Enum for all the buffs in Rime.
-    """
+    def effective_cast_time(self, character: "RimeCharacter") -> float:
+        """Returns the effective cast time of the spell."""
 
-    SOULFROST_BUFF = Spell(
-        "Soulfrost Buff", is_buff=True, debuff_duration=100000
-    )
-    GLACIAL_ASSAULT_BUFF = Spell(
-        "Glacial Assault", is_buff=True, debuff_duration=100000
-    )
-    COMET_BONUS = Spell(
-        "Ice Comet",
-        cast_time=0,
-        cooldown=0,
-        mana_generation=0,
-        winter_orb_cost=0,
-        damage_percent=300,
-    )
-    BOOSTED_BLAST = Spell(
-        "Glacial Blast",
-        cast_time=0,
-        cooldown=0,
-        mana_generation=0,
-        winter_orb_cost=2,
-        damage_percent=1008,
-    )
+        return self.base_cast_time * (1 - character.haste / 100)
+
+    def is_ready(self, character: "RimeCharacter", enemy_count: int) -> bool:
+        """Returns True if the spell is ready to be cast."""
+
+        return (
+            self.min_target_count <= enemy_count <= self.max_target_count
+            and self.winter_orb_cost <= character.winter_orbs
+            and self.remaining_cooldown <= 0
+        )
+
+    def damage(self, character: "RimeCharacter") -> float:
+        """Returns the damage of the spell."""
+
+        base_damage = self.damage_percent * character.intellect
+        modified_damage = base_damage * (1 + character.expertise / 100)
+        return modified_damage
+
+    def set_cooldown(self) -> None:
+        """Sets the cooldown of the spell."""
+
+        self.remaining_cooldown = self.cooldown
+
+    def reset_cooldown(self) -> None:
+        """Resets the cooldown of the spell."""
+
+        self.total_damage_dealt = 0
+        self.remaining_cooldown = 0
+
+    def update_cooldown(self, delta_time: int) -> None:
+        """Decreases the remaining cooldown by the delta time."""
+
+        if self.remaining_cooldown > 0:
+            self.remaining_cooldown -= delta_time
+
+    def apply_debuff(self) -> None:
+        """Applies the debuff to the target."""
+
+        self.remaining_debuff_duration = self.debuff_duration
+        self.next_tick_time = 0
+
+    def update_remaining_debuff_duration(self, delta_time: int) -> None:
+        """Decreases the remaining debuff duration by the delta time."""
+
+        if self.remaining_debuff_duration > 0:
+            self.remaining_debuff_duration -= delta_time
