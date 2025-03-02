@@ -1,5 +1,5 @@
 """Module for the Spell class."""
-
+import random
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
@@ -52,7 +52,8 @@ class BaseSpell(ABC):
         damage = self.damage_modified_player_stats(character, damage) #The damage after being modified by player stats.
 
         #Roll for Crit Damage.
-
+        if random.uniform(0, 100) < get_crit_chance(character):
+            damage = damage * 2 #TODO: Include Crit Power.
         return damage
     
     # Used as an override for damage modifiers from Talents and other sources.
@@ -66,11 +67,15 @@ class BaseSpell(ABC):
         modified_damage = modified_damage * (1 + character.expertise / 100)
         return modified_damage
     
-    def crit_chance(self, character: "BaseCharacter") -> float:
+    def get_crit_chance(self, character: "BaseCharacter") -> float:
         """Returns the crit chance of the spell."""
         crit_chance = character.crit
         crit_chance = self.crit_chance_modifiers(character, crit_chance)
         return character.crit
+
+    def crit_chance_modifiers(self, character: "BaseCharacter", crit_chance) -> float:
+        """Returns the crit chance of the spell. Including any modifiers."""
+        return crit_chance
 
     def set_cooldown(self) -> None:
         """Sets the cooldown of the spell."""

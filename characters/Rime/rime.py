@@ -86,6 +86,11 @@ class Glacial_Blast(RimeSpell):
                          damage_percent=504,
                          winter_orb_cost=2)
         
+    def crit_chance_modifiers(self, character, crit_chance):
+        if "Glacial Assault" in character.talents:
+            crit_chance += 20
+        return crit_chance
+        
 class Ice_Comet(RimeSpell):
     """Ice Comet Spell"""
 
