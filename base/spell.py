@@ -177,6 +177,7 @@ class BaseDebuff(BaseSpell):
         super().__init__(*args, **kwargs)
         self.duration = duration
         self.base_tick_rate = duration / self.ticks
+        self.time_to_next_tick = 0
 
     def cast(self, do_damage=False):
         super().cast(do_damage)
@@ -200,7 +201,18 @@ class BaseDebuff(BaseSpell):
 
     def update_remaining_duration(self, delta_time: int) -> None:
         """Decreases the remaining buff/debuff duration by the delta time."""
-        self.remaining_time -= delta_time
+
+        while delta_time > 0 and self.remaining_time > 0:
+            if delta_time >= self.time_to_next_tick:
+                delta_time -= self.time_to_next_tick
+                self.remaining_time -= delta_time
+                self.time_to_next_tick = self.base_tick_rate
+                self.on_tick()
+            else:
+                self.time_to_next_tick -= delta_time
+                self.remaining_time -= delta_time
+                delta_time = 0
+
         if self.remaining_time <= 0:
             self.remove_debuff()
 
@@ -225,7 +237,10 @@ class BaseBuff(BaseSpell):
     ):  # The duration of the buff
         super().__init__(*args, **kwargs)
         self.duration = duration
-        self.base_tick_rate = duration / self.ticks
+        self.base_tick_rate = (
+            duration / self.ticks
+        )  # TODO: Make Tickrate take into consideration haste.
+        self.time_to_next_tick = 0
 
     def cast(self, do_damage=False):
         super().cast(do_damage)
@@ -247,7 +262,18 @@ class BaseBuff(BaseSpell):
 
     def update_remaining_duration(self, delta_time: float) -> None:
         """Decreases the remaining buff duration by the delta time."""
-        self.remaining_time -= delta_time
+
+        while delta_time > 0 and self.remaining_time > 0:
+            if delta_time >= self.time_to_next_tick:
+                delta_time -= self.time_to_next_tick
+                self.remaining_time -= delta_time
+                self.time_to_next_tick = self.base_tick_rate
+                self.on_tick()
+            else:
+                self.time_to_next_tick -= delta_time
+                self.remaining_time -= delta_time
+                delta_time = 0
+
         if self.remaining_time <= 0:
             self.remove_buff()
 

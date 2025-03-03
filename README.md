@@ -1,4 +1,4 @@
-# Rime DPS Simulator
+# SimFell
 
 This project is a simple DPS simulator for the game Fellowship. It is a work in progress and does not yet include all features.
 
@@ -8,8 +8,11 @@ Currently working on:
 
 | Feature               | Status            |
 | --------------------- | ----------------- |
-| SimC-like integration | ⚙️ Rough Draft     |
+| SimC-like integration | ⚙️ Rough Draft    |
 | Rotation Opener       | 💡 To be Discussed |
+| Debuff and Buff Ticks | In-Progress        |
+| Talent Rework         |  Not Started     |
+| Tariq + Other Heroes  | Not Started - Partial Support |
 
 ## 🚀 How to Run
 
