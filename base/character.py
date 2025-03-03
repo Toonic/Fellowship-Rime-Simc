@@ -40,9 +40,27 @@ class BaseCharacter(ABC):
         self.configure_spell_book()
         self.simulation = None
 
+        # External Character Stat Buffs
+        self.main_stat_multiplier = 0
+        self.main_stat_additional = 0
+        self.haste_multiplier = 0
+        self.haste_additional = 0
+
     def set_simulation(self, simulation) -> None:
         """Sets the simulation for the character."""
         self.simulation = simulation
+
+    def get_main_stat(self) -> float:
+        """Returns the character's main stat."""
+        return (self.main_stat + self.main_stat_additional) * (
+            1 + self.main_stat_multiplier
+        )
+
+    def get_haste(self) -> float:
+        """Returns the character's haste."""
+        return (self.haste + self.haste_additional) * (
+            1 + self.haste_multiplier
+        )
 
     @abstractmethod
     def configure_spell_book(self) -> None:
@@ -50,13 +68,3 @@ class BaseCharacter(ABC):
 
     def add_talent(self, talent: str) -> None:
         """Adds a talent to the character's available talents."""
-
-    def update_stats(
-        self,
-        intellect: int,
-        crit: int,
-        expertise: int,
-        haste: int,
-        spirit: int,
-    ) -> None:
-        """Updates the character's stats."""

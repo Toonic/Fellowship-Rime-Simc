@@ -14,6 +14,7 @@ class Rime(BaseCharacter):
     hastePerPoint = 0.21
     spiritPerPoint = 0.21
 
+    anima_spikes = None
     anima = 0
     winter_orbs = 0
 
@@ -34,6 +35,9 @@ class Rime(BaseCharacter):
             IceBlitz().simfell_name: IceBlitz(),
         }
 
+        self.anima_spikes = AnimaSpikes()
+        self.anima_spikes.character = self
+
         # I couldn't find a clean way to handle this. Up for solutions.
         for spell in self.spells.values():
             spell.character = self
@@ -44,7 +48,8 @@ class Rime(BaseCharacter):
         if self.anima >= 10:
             self.anima = 0
             self.gain_winter_orbs(1)
-            # TODO: Cast Anima Spikes.
+            for _ in range(3):
+                self.anima_spikes.cast()
 
     def gain_winter_orbs(self, amount):
         """Gain Winter Orbs"""
@@ -256,3 +261,10 @@ class IceBlitz(RimeBuff):
 
     def __init__(self):
         super().__init__("Ice Blitz", duration=20, cooldown=120)
+
+
+class AnimaSpikes(RimeSpell):
+    """Anima Spikes Spell"""
+
+    def __init__(self):
+        super().__init__("Anima Spikes", damage_percent=36)

@@ -113,7 +113,7 @@ class BaseSpell(ABC):
     @final
     def damage_modified_player_stats(self, damage) -> float:
         """Returns the damage of the spell after being modified by player stats"""
-        modified_damage = (damage / 100) * self.character.main_stat
+        modified_damage = (damage / 100) * self.character.get_main_stat()
         modified_damage = modified_damage * (
             1 + self.character.expertise / 100
         )
