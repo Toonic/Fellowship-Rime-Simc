@@ -89,7 +89,7 @@ class BaseSpell(ABC):
     @final
     def damage(self) -> float:
         """Returns the damage of the spell. Including any modifiers."""
-        # @TODO: Handle AOE.
+        # TODO: Handle AOE.
 
         damage = self.damage_percent  # The base damage of the spell.
         damage = self.damage_modifiers(

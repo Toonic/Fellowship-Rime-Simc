@@ -31,12 +31,15 @@ class Rime(BaseCharacter):
             # Bursting_Ice().simfell_name: Bursting_Ice(),
             GlacialBlast().simfell_name: GlacialBlast(),
             IceComet().simfell_name: IceComet(),
-            # Dance_Of_Swallows().simfell_name: Dance_Of_Swallows(),
+            DanceOfSwallows().simfell_name: DanceOfSwallows(),
             IceBlitz().simfell_name: IceBlitz(),
         }
 
         self.anima_spikes = AnimaSpikes()
         self.anima_spikes.character = self
+
+        self.dance_of_swallows = DanceOfSwallows()
+        self.dance_of_swallows.character = self
 
         # I couldn't find a clean way to handle this. Up for solutions.
         for spell in self.spells.values():
@@ -180,7 +183,21 @@ class ColdSnap(RimeSpell):
     """Cold Snap Spell"""
 
     def __init__(self):
-        super().__init__("Cold Snap", damage_percent=219, winter_orb_cost=-1)
+        super().__init__(
+            "Cold Snap", damage_percent=219, winter_orb_cost=-1, cooldown=8
+        )
+
+    def on_cast_complete(self):
+        super().on_cast_complete()
+        if (
+            self.character.simulation.debuffs.get(
+                DanceOfSwallows().simfell_name
+            )
+            is not None
+        ):
+            # Dance of Swallows is hard coded to trigger 10 times from ColdSnap
+            for _ in range(10):
+                self.character.dance_of_swallows.damage()
 
 
 class FreezingTorrent(RimeSpell):
@@ -232,6 +249,7 @@ class GlacialBlast(RimeSpell):
         )
 
     def crit_chance_modifiers(self, crit_chance):
+        # TODO: Better handling of talents instead of string matching.
         if "Glacial Assault" in self.character.talents:
             crit_chance += 20
         return crit_chance
@@ -244,13 +262,14 @@ class IceComet(RimeSpell):
         super().__init__("Ice Comet", damage_percent=300, winter_orb_cost=3)
 
 
-class DanceOfSwallows(RimeSpell):
+class DanceOfSwallows(RimeDebuff):
     """Dance of Swallows Spell"""
 
     def __init__(self):
         super().__init__(
             "Dance of Swallows",
             cooldown=60,
+            duration=20,
             damage_percent=53,
             winter_orb_cost=2,
         )
@@ -262,7 +281,14 @@ class IceBlitz(RimeBuff):
     ice_blitz_damage_multiplier = 0.15
 
     def __init__(self):
-        super().__init__("Ice Blitz", duration=20, cooldown=120)
+        super().__init__(
+            "Ice Blitz",
+            duration=20,
+            cooldown=120,
+            has_gcd=False,
+            can_cast_on_gcd=True,
+            can_cast_while_casting=True,
+        )
 
     def apply_buff(self):
         super().apply_buff()

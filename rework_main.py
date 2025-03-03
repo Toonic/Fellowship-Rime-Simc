@@ -1,5 +1,5 @@
 from characters.Rime import Rime
-from characters.Rime.rime import FrostBolt, IceBlitz
+from characters.Rime.rime import FrostBolt, IceBlitz, ColdSnap, DanceOfSwallows
 from rework_sim import Simulation
 
 
@@ -12,7 +12,9 @@ def main():
     # TODO: Parse this in from the SimFell File and or the other way.
     character = Rime(100, 0, 0, 0, 0)
     # TODO: This should be a list of SimFell Actions.
+    character.rotation.append(DanceOfSwallows().simfell_name)
     character.rotation.append(IceBlitz().simfell_name)
+    character.rotation.append(ColdSnap().simfell_name)
     character.rotation.append(FrostBolt().simfell_name)
 
     debug_sim(character)
