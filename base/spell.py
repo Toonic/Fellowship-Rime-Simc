@@ -22,7 +22,7 @@ class BaseSpell(ABC):
         ticks=1,  # How many ticks of damage over the duration.
         has_gcd=True,  # If the spell has a GCD or not.
         can_cast_on_gcd=False,  # If the spell can be cast while GCD  is happening or not.
-        can_cast_while_casting=False,  # If the spell can be cast while another spell is being cast.
+        can_cast_while_casting=False,
     ):
         self.name = name
         self.cast_time = cast_time
@@ -33,6 +33,12 @@ class BaseSpell(ABC):
         self.has_gcd = has_gcd
         self.can_cast_on_gcd = can_cast_on_gcd
         self.can_cast_while_casting = can_cast_while_casting
+        self.remaining_cooldown = 0
+
+    @final
+    def set_character(self, character: "BaseCharacter") -> None:
+        """Sets the character for the spell."""
+        self.character = character
 
     @property
     def simfell_name(self) -> str:
@@ -40,80 +46,97 @@ class BaseSpell(ABC):
 
         return self.name.lower().replace(" ", "_")
 
-    def is_ready(self, character: "BaseCharacter", enemy_count: int) -> bool:
+    def is_ready(self) -> bool:
         """Returns True if the spell is ready to be cast."""
+        # TODO: Add the Conditional check here from the SimFell file as an additional check.
+        if self.remaining_cooldown <= 0:
+            return True
+        return False
 
-    def effective_cast_time(self, character: "BaseCharacter") -> float:
+    @final
+    def effective_cast_time(self) -> float:
         """Returns the effective cast time of the spell. Including any modifiers."""
+        # TODO: Add effective cast time modifiers function for spells to overide.
 
-    def cast(self, character: "BaseCharacter", enemy_count: int) -> None:
+    def cast(self) -> None:
         """Casts the spell."""
         # TODO: Pseudo Code. - I want to bring in the simulation.
         #       Possibly even the character tot he spell.
         #       I dislike passing in character for all of these functions.
 
-        # if self.channeled:
-        #     tick_interval = self.cast_time / self.ticks
-        #     self.set_cooldown() #Channeled spells cooldown starts on cast.
-        #     for tick in range(self.ticks):
-        #         simulation.progress_time(tick_interval)
-        #         simulation.apply_damage(self.damage(character) / self.ticks)
-        #         self.on_tick_effect(character)
-        # else:
-        #     simulation.progress_time(self.cast_time)
-        #     simulation.apply_damage(self.damage(character))
-        #     self.set_cooldown()
+        if self.channeled:
+            tick_interval = self.cast_time / self.ticks
+            self.set_cooldown()  # Channeled spells cooldown starts on cast.
+            for tick in range(self.ticks):
+                self.character.simulation.update_time(tick_interval)
+                self.damage()
+                # self.on_tick_effect(character)
+        else:
+            self.character.simulation.update_time(self.cast_time)
+            self.damage()
+            # simulation.apply_damage(self.damage())
+            self.set_cooldown()
 
     @final
-    def damage(self, character: "BaseCharacter") -> float:
+    def damage(self) -> float:
         """Returns the damage of the spell. Including any modifiers."""
+        # @TODO: Handle AOE.
 
         damage = self.damage_percent  # The base damage of the spell.
         damage = self.damage_modifiers(
-            character, damage
+            damage
         )  # Any additional modifiers being applied.
         damage = self.damage_modified_player_stats(
-            character, damage
+            damage
         )  # The damage after being modified by player stats.
 
         # Roll for Crit Damage.
-        if random.uniform(0, 100) < self.get_crit_chance(character):
+        if random.uniform(0, 100) < self.get_crit_chance():
             damage = damage * 2  # TODO: Include Crit Power.
 
-        return damage
+        print(
+            f"Time {self.character.simulation.time:.2f}: "
+            + f"Cast {self.name}, "
+            + f"dealing {damage:.2f} damage"
+        )
+
+        # TODO: Apply damage to simulation here instead?
+        # self.character.simulation.apply_damage(damage)
 
     # Used as an override for damage modifiers from Talents and other sources.
-    def damage_modifiers(self, character: "BaseCharacter", damage) -> float:
+    def damage_modifiers(self, damage) -> float:
         """Returns the damage of the spell. Including any modifiers."""
         return damage
 
     @final
-    def damage_modified_player_stats(
-        self, character: "BaseCharacter", damage
-    ) -> float:
+    def damage_modified_player_stats(self, damage) -> float:
         """Returns the damage of the spell after being modified by player stats"""
-        modified_damage = damage * character.main_stat
-        modified_damage = modified_damage * (1 + character.expertise / 100)
+        modified_damage = (damage / 100) * self.character.main_stat
+        modified_damage = modified_damage * (
+            1 + self.character.expertise / 100
+        )
         return modified_damage
 
     @final
-    def get_crit_chance(self, character: "BaseCharacter") -> float:
-        """Returns the crit chance of the spell."""
-        crit_chance = character.crit
-        crit_chance = self.crit_chance_modifiers(character, crit_chance)
-        return character.crit
-
-    def crit_chance_modifiers(
-        self, character: "BaseCharacter", crit_chance
+    def get_crit_chance(
+        self,
     ) -> float:
+        """Returns the crit chance of the spell."""
+        crit_chance = self.character.crit
+        crit_chance = self.crit_chance_modifiers(crit_chance)
+        return self.character.crit
+
+    def crit_chance_modifiers(self, crit_chance) -> float:
         """Returns the crit chance of the spell. Including any modifiers."""
         return crit_chance
 
-    def on_tick(self, character: "BaseCharacter") -> None:
+    def on_tick(
+        self,
+    ) -> None:
         """The effect of the spell on each tick."""
         pass
 
-    def on_cast_complete(self, character: "BaseCharacter") -> None:
+    def on_cast_complete(self) -> None:
         """The effect of the spell when the cast is complete."""
         pass
 

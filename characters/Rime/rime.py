@@ -25,12 +25,15 @@ class Rime(BaseCharacter):
             Frost_Bolt().simfell_name: Frost_Bolt(),
             Cold_Snap().simfell_name: Cold_Snap(),
             Freezing_Torrent().simfell_name: Freezing_Torrent(),
-            Bursting_Ice().simfell_name: Bursting_Ice(),
+            # Bursting_Ice().simfell_name: Bursting_Ice(),
             Glacial_Blast().simfell_name: Glacial_Blast(),
             Ice_Comet().simfell_name: Ice_Comet(),
-            Dance_Of_Swallows().simfell_name: Dance_Of_Swallows(),
-            Ice_Blitz().simfell_name: Ice_Blitz(),
+            # Dance_Of_Swallows().simfell_name: Dance_Of_Swallows(),
+            # ce_Blitz().simfell_name: Ice_Blitz(),
         }
+        # I couldn't find a clean way to handle this. Up for solutions.
+        for spell in self.spells.values():
+            spell.character = self
 
     def gain_anima(self, amount):
         self.anima += amount
@@ -61,16 +64,22 @@ class RimeSpell(BaseSpell):
 
     def __init__(
         self,
+        *args,
         anima_gain=0,
         winter_orb_cost=0,
         anima_per_tick=0,
-        *args,
         **kwargs,
     ):
         self.anima_gain = anima_gain
         self.winter_orb_cost = winter_orb_cost
         self.anima_per_tick = anima_per_tick
         super().__init__(*args, **kwargs)
+
+    def is_ready(self):
+        return (
+            super().is_ready()
+            and self.character.winter_orbs >= self.winter_orb_cost
+        )
 
     def on_cast_complete(self, character):
         character.gain_anima(self.anima_gain)  # Gain Anima on Complete.
@@ -98,6 +107,9 @@ class Cold_Snap(RimeSpell):
 
 class Freezing_Torrent(RimeSpell):
     """Freezing Torrent Spell"""
+
+    # TODO: Future note to myself in the future:
+    # I need to code PPM for Soulfrost.
 
     def __init__(self):
         super().__init__(

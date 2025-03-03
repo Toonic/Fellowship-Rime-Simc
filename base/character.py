@@ -30,11 +30,17 @@ class BaseCharacter(ABC):
         # This will hold the character's available spells.
         self.spells: Dict[str, BaseSpell] = {}
         # This will hold the character's rotation.
-        self.rotation: List[BaseSpell] = []
+        # TODO: Change this to an object reference of SimFell Action?
+        self.rotation: List[str] = []
         # All the talents.
         self.talents: List[str] = []
         # Buffs
         self.buffs: Dict[str, BaseSpell] = {}
+        self.configure_spell_book()
+
+    def set_simulation(self, simulation) -> None:
+        """Sets the simulation for the character."""
+        self.simulation = simulation
 
     @abstractmethod
     def configure_spell_book(self) -> None:
