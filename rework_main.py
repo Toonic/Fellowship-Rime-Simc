@@ -11,6 +11,7 @@ def main():
 
     # TODO: Parse this in from the SimFell File and or the other way.
     character = Rime(100, 100, 100, 100, 100)
+    # TODO: This should be a list of SimFell Actions.
     character.rotation.append(Frost_Bolt().simfell_name)
 
     debug_sim(character)
