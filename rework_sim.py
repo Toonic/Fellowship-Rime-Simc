@@ -10,12 +10,13 @@ class Simulation:
         self.enemyCount = enemyCount
         self.doDebug = doDebug
         self.time = 0
+        self.gcd = 0
         self.abilityQueue = []
         self.debuffs: Dict[str, BaseDebuff] = {}
 
     def update_time(self, delta_time: float):
         self.time += delta_time
-        # self.gcd -= delta_time
+        self.gcd -= delta_time
 
         # Update spell cooldowns
         for spell in self.character.spells.values():
@@ -33,6 +34,9 @@ class Simulation:
 
     def run(self):
         while self.time < self.duration:
+            if self.gcd > 0:
+                self.update_time(self.gcd)
+
             for spell in self.character.rotation:
                 if self.character.spells[spell].is_ready():
                     print(

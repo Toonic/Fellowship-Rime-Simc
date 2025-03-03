@@ -54,10 +54,9 @@ class BaseSpell(ABC):
             return True
         return False
 
-    @final
     def effective_cast_time(self) -> float:
         """Returns the effective cast time of the spell. Including any modifiers."""
-        # TODO: Add effective cast time modifiers function for spells to overide.
+        return self.cast_time * (1 - self.character.get_haste() / 100)
 
     def cast(self) -> None:
         """Casts the spell."""
@@ -66,17 +65,26 @@ class BaseSpell(ABC):
         #       I dislike passing in character for all of these functions.
 
         if self.channeled:
-            tick_interval = self.cast_time / self.ticks
+            self.character.simulation.gcd = self.get_gcd()
+            tick_interval = self.effective_cast_time() / self.ticks
             self.set_cooldown()  # Channeled spells cooldown starts on cast.
             for _ in range(self.ticks):
                 self.character.simulation.update_time(tick_interval)
                 self.damage()
                 # self.on_tick_effect(character)
         else:
-            self.character.simulation.update_time(self.cast_time)
+            self.character.simulation.update_time(self.effective_cast_time())
             self.damage()
             self.on_cast_complete()
+            self.character.simulation.gcd = self.get_gcd()
             # simulation.apply_damage(self.damage())
+
+    # NOTE: Public because Tariq has some spells with a static GCD so this will future support that.
+    def get_gcd(self) -> float:
+        """Returns the GCD of the spell."""
+        if self.has_gcd:
+            return 1.5 / (1 + self.character.get_haste() / 100)
+        return 0
 
     @final
     def damage(self) -> float:
@@ -90,6 +98,8 @@ class BaseSpell(ABC):
         damage = self.damage_modified_player_stats(
             damage
         )  # The damage after being modified by player stats.
+
+        damage = damage * (1 + self.character.damage_multiplier)
 
         # Roll for Crit Damage.
         if random.uniform(0, 100) < self.get_crit_chance():
@@ -115,7 +125,7 @@ class BaseSpell(ABC):
         """Returns the damage of the spell after being modified by player stats"""
         modified_damage = (damage / 100) * self.character.get_main_stat()
         modified_damage = modified_damage * (
-            1 + self.character.expertise / 100
+            1 + self.character.get_expertise() / 100
         )
         return modified_damage
 
@@ -124,9 +134,9 @@ class BaseSpell(ABC):
         self,
     ) -> float:
         """Returns the crit chance of the spell."""
-        crit_chance = self.character.crit
+        crit_chance = self.character.get_crit()
         crit_chance = self.crit_chance_modifiers(crit_chance)
-        return self.character.crit
+        return crit_chance
 
     def crit_chance_modifiers(self, crit_chance) -> float:
         """Returns the crit chance of the spell. Including any modifiers."""

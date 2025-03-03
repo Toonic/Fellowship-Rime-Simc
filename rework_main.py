@@ -10,7 +10,7 @@ def main():
     ## Create your character below by plugging in their Point Stats, not % Stats.
 
     # TODO: Parse this in from the SimFell File and or the other way.
-    character = Rime(100, 100, 100, 100, 100)
+    character = Rime(100, 0, 0, 0, 0)
     # TODO: This should be a list of SimFell Actions.
     character.rotation.append(IceBlitz().simfell_name)
     character.rotation.append(FrostBolt().simfell_name)
