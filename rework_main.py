@@ -9,7 +9,7 @@ def main():
     print("----------------------------")
     ## Create your character below by plugging in their Point Stats, not % Stats.
 
-    # TODO: Parse this in from the SIM File and or the other way.
+    # TODO: Parse this in from the SimFell File and or the other way.
     character = Rime(100, 100, 100, 100, 100)
     character.rotation.append(Frost_Bolt().simfell_name)
 
