@@ -34,6 +34,7 @@ class BaseSpell(ABC):
         self.can_cast_on_gcd = can_cast_on_gcd
         self.can_cast_while_casting = can_cast_while_casting
         self.remaining_cooldown = 0
+        self.character = None  # Initialize character attribute
 
     @final
     def set_character(self, character: "BaseCharacter") -> None:
@@ -67,15 +68,15 @@ class BaseSpell(ABC):
         if self.channeled:
             tick_interval = self.cast_time / self.ticks
             self.set_cooldown()  # Channeled spells cooldown starts on cast.
-            for tick in range(self.ticks):
+            for _ in range(self.ticks):
                 self.character.simulation.update_time(tick_interval)
                 self.damage()
                 # self.on_tick_effect(character)
         else:
             self.character.simulation.update_time(self.cast_time)
             self.damage()
+            self.on_cast_complete()
             # simulation.apply_damage(self.damage())
-            self.set_cooldown()
 
     @final
     def damage(self) -> float:
@@ -94,11 +95,12 @@ class BaseSpell(ABC):
         if random.uniform(0, 100) < self.get_crit_chance():
             damage = damage * 2  # TODO: Include Crit Power.
 
-        print(
-            f"Time {self.character.simulation.time:.2f}: "
-            + f"Cast {self.name}, "
-            + f"dealing {damage:.2f} damage"
-        )
+        if damage > 0:
+            print(
+                f"Time {self.character.simulation.time:.2f}: "
+                + f"Cast {self.name}, "
+                + f"dealing {damage:.2f} damage"
+            )
 
         # TODO: Apply damage to simulation here instead?
         # self.character.simulation.apply_damage(damage)
@@ -138,7 +140,7 @@ class BaseSpell(ABC):
 
     def on_cast_complete(self) -> None:
         """The effect of the spell when the cast is complete."""
-        pass
+        self.set_cooldown()
 
     def set_cooldown(self) -> None:
         """Sets the cooldown of the spell."""
@@ -159,15 +161,85 @@ class BaseDebuff(BaseSpell):
     remaining_time = 0
 
     def __init__(
-        self, duration=0, *args, **kwargs
-    ):  # The duration of the buff/debuff.
+        self, *args, duration=0, **kwargs
+    ):  # The duration of the debuff.
         super().__init__(*args, **kwargs)
         self.duration = duration
+        self.base_tick_rate = duration / self.ticks
+
+    def on_cast_complete(self):
+        super().on_cast_complete()
+        self.apply_debuff()
 
     def apply_debuff(self) -> None:
         """Applies the debuff to the target."""
-        self.remaining_time = self.duration
+        self.remaining_time = (
+            self.duration + 0.15
+        )  # Fellowship for some reason has an additional 0.15 Seconds for debuffs. WHY?!
+        self.character.simulation.debuffs[self.simfell_name] = self
+        print(
+            f"Time {self.character.simulation.time:.2f}: "
+            + f"Applied {self.name} "
+            + "debuff to enemy."
+        )
+        # TODO: Determine if there is a maximum buff/debuff count, and if re-casting it refreshes the duration.
 
     def update_remaining_duration(self, delta_time: int) -> None:
         """Decreases the remaining buff/debuff duration by the delta time."""
         self.remaining_time -= delta_time
+        if self.remaining_time <= 0:
+            self.remove_debuff()
+
+    def remove_debuff(self) -> None:
+        """Removes the debuff from the target."""
+        self.remaining_time = 0
+        del self.character.simulation.debuffs[self.simfell_name]
+        print(
+            f"Time {self.character.simulation.time:.2f}: "
+            + f"Removed {self.name} "
+            + "debuff from enemy."
+        )
+
+
+class BaseBuff(BaseSpell):
+    """Abstract base class for all buffs."""
+
+    remaining_time = 0
+
+    def __init__(
+        self, *args, duration=0, **kwargs
+    ):  # The duration of the buff
+        super().__init__(*args, **kwargs)
+        self.duration = duration
+        self.base_tick_rate = duration / self.ticks
+
+    def on_cast_complete(self):
+        super().on_cast_complete()
+        self.apply_buff()
+
+    def apply_buff(self) -> None:
+        """Applies the debuff to the target."""
+        self.remaining_time = self.duration
+        self.character.buffs[self.simfell_name] = self
+        print(
+            f"Time {self.character.simulation.time:.2f}: "
+            + f"Applied {self.name} "
+            + "buff to character."
+        )
+        # TODO: Determine if there is a maximum buff/debuff count, and if re-casting it refreshes the duration.
+
+    def update_remaining_duration(self, delta_time: float) -> None:
+        """Decreases the remaining buff duration by the delta time."""
+        self.remaining_time -= delta_time
+        if self.remaining_time <= 0:
+            self.remove_buff()
+
+    def remove_buff(self) -> None:
+        """Removes the buff from the character."""
+        self.remaining_time = 0
+        del self.character.buffs[self.simfell_name]
+        print(
+            f"Time {self.character.simulation.time:.2f}: "
+            + f"Removed {self.name} "
+            + "buff to character."
+        )

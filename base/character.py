@@ -8,6 +8,7 @@ from typing import Dict, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from spell import BaseSpell
+    from spell import BaseBuff
 
 
 class BaseCharacter(ABC):
@@ -35,8 +36,9 @@ class BaseCharacter(ABC):
         # All the talents.
         self.talents: List[str] = []
         # Buffs
-        self.buffs: Dict[str, BaseSpell] = {}
+        self.buffs: Dict[str, BaseBuff] = {}
         self.configure_spell_book()
+        self.simulation = None
 
     def set_simulation(self, simulation) -> None:
         """Sets the simulation for the character."""
