@@ -58,11 +58,8 @@ class BaseSpell(ABC):
         """Returns the effective cast time of the spell. Including any modifiers."""
         return self.cast_time * (1 - self.character.get_haste() / 100)
 
-    def cast(self) -> None:
+    def cast(self, do_damage=True) -> None:
         """Casts the spell."""
-        # TODO: Pseudo Code. - I want to bring in the simulation.
-        #       Possibly even the character tot he spell.
-        #       I dislike passing in character for all of these functions.
 
         if self.channeled:
             self.character.simulation.gcd = self.get_gcd()
@@ -70,14 +67,15 @@ class BaseSpell(ABC):
             self.set_cooldown()  # Channeled spells cooldown starts on cast.
             for _ in range(self.ticks):
                 self.character.simulation.update_time(tick_interval)
-                self.damage()
-                # self.on_tick_effect(character)
+                if do_damage:
+                    self.damage()
+                self.on_tick()
         else:
             self.character.simulation.update_time(self.effective_cast_time())
-            self.damage()
+            if do_damage:
+                self.damage()
             self.on_cast_complete()
             self.character.simulation.gcd = self.get_gcd()
-            # simulation.apply_damage(self.damage())
 
     # NOTE: Public because Tariq has some spells with a static GCD so this will future support that.
     def get_gcd(self) -> float:
@@ -105,10 +103,13 @@ class BaseSpell(ABC):
         if random.uniform(0, 100) < self.get_crit_chance():
             damage = damage * 2  # TODO: Include Crit Power.
 
+        if self.ticks > 1:
+            damage = damage / self.ticks
+
         if damage > 0:
             print(
                 f"Time {self.character.simulation.time:.2f}: "
-                + f"Cast {self.name}, "
+                + f"Cast {self.name} "
                 + f"dealing {damage:.2f} damage"
             )
 
@@ -177,6 +178,9 @@ class BaseDebuff(BaseSpell):
         self.duration = duration
         self.base_tick_rate = duration / self.ticks
 
+    def cast(self, do_damage=False):
+        super().cast(do_damage)
+
     def on_cast_complete(self):
         super().on_cast_complete()
         self.apply_debuff()
@@ -222,6 +226,9 @@ class BaseBuff(BaseSpell):
         super().__init__(*args, **kwargs)
         self.duration = duration
         self.base_tick_rate = duration / self.ticks
+
+    def cast(self, do_damage=False):
+        super().cast(do_damage)
 
     def on_cast_complete(self):
         super().on_cast_complete()

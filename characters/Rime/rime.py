@@ -25,10 +25,11 @@ class Rime(BaseCharacter):
 
     def configure_spell_book(self):
         self.spells = {
+            WrathOfWinter().simfell_name: WrathOfWinter(),
             FrostBolt().simfell_name: FrostBolt(),
             ColdSnap().simfell_name: ColdSnap(),
             FreezingTorrent().simfell_name: FreezingTorrent(),
-            # Bursting_Ice().simfell_name: Bursting_Ice(),
+            BurstingIce().simfell_name: BurstingIce(),
             GlacialBlast().simfell_name: GlacialBlast(),
             IceComet().simfell_name: IceComet(),
             DanceOfSwallows().simfell_name: DanceOfSwallows(),
@@ -170,6 +171,19 @@ class RimeBuff(BaseBuff):
             self.character.gain_winter_orbs(abs(self.winter_orb_cost))
 
 
+class WrathOfWinter(RimeBuff):
+    """Wrath of Winter Spell"""
+
+    def __init__(self):
+        super().__init__(
+            "Wrath of Winter",
+            cast_time=0,
+            duration=20,
+            ticks=10,
+            cooldown=1000,  # TODO: Spirit Gen instead.
+        )
+
+
 class FrostBolt(RimeSpell):
     """Frost Bolt Spell"""
 
@@ -204,7 +218,8 @@ class FreezingTorrent(RimeSpell):
     """Freezing Torrent Spell"""
 
     # TODO: Future note to myself in the future:
-    # I need to code PPM for Soulfrost.
+    # I need to code PPM for Soulfrost which is at 1.5 PPM According to Devs.
+    # Use WoW's RPPM calculations for this.
 
     def __init__(self):
         super().__init__(
@@ -219,10 +234,16 @@ class FreezingTorrent(RimeSpell):
 
     def on_tick(self):
         self.character.anima += self.anima_per_tick
+        if (
+            self.character.simulation.debuffs.get(
+                DanceOfSwallows().simfell_name
+            )
+            is not None
+        ):
+            self.character.dance_of_swallows.damage()
 
 
-# TODO: Make this a Debuff instead of a Spell.
-class BurstingIce(RimeSpell):
+class BurstingIce(RimeDebuff):
     """Bursting Ice Spell"""
 
     def __init__(self):
