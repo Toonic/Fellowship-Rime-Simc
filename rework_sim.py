@@ -24,7 +24,6 @@ class Simulation:
 
     def run(self):
         while self.time < self.duration:
-            spellFound = False
             for spell in self.character.rotation:
                 if self.character.spells[spell].is_ready():
                     self.character.spells[spell].cast()
@@ -32,7 +31,6 @@ class Simulation:
                         f"Time {self.time:.2f}: "
                         + f"Casting {self.character.spells[spell].name}. "
                     )
-                    spellFound = True
                     break
             else:
                 self.update_time(0.1)
