@@ -223,7 +223,8 @@ class BaseDebuff(BaseSpell):
     def remove_debuff(self) -> None:
         """Removes the debuff from the target."""
         self.remaining_time = 0
-        del self.character.simulation.debuffs[self.simfell_name]
+        if self.simfell_name in self.character.simulation.debuffs:
+            del self.character.simulation.debuffs[self.simfell_name]
         print(
             f"Time {self.character.simulation.time:.2f}: "
             + f"Removed {self.name} "
