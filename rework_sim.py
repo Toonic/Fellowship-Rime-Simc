@@ -29,8 +29,8 @@ class Simulation:
         # Update Debuffs on an Enemy.
         # TODO: In the future we will want to keep track of each enemy and each debuff
         #      This will be important for Multi-Dotting  in the future.
-        for buff in self.debuffs.copy().values():
-            buff.update_remaining_duration(delta_time)
+        for debuff in self.debuffs.copy().values():
+            debuff.update_remaining_duration(delta_time)
 
     def run(self):
         while self.time < self.duration:

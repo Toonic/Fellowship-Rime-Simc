@@ -177,6 +177,7 @@ class BaseDebuff(BaseSpell):
         super().__init__(*args, **kwargs)
         self.duration = duration
         self.base_tick_rate = duration / self.ticks
+        self.tick_rate = 0
         self.time_to_next_tick = 0
 
     def cast(self, do_damage=False):
@@ -191,6 +192,9 @@ class BaseDebuff(BaseSpell):
         self.remaining_time = (
             self.duration + 0.15
         )  # Fellowship for some reason has an additional 0.15 Seconds for debuffs. WHY?!
+        self.tick_rate = self.base_tick_rate * (
+            1 + (self.character.get_haste() / 100)
+        )
         self.character.simulation.debuffs[self.simfell_name] = self
         print(
             f"Time {self.character.simulation.time:.2f}: "
@@ -237,9 +241,8 @@ class BaseBuff(BaseSpell):
     ):  # The duration of the buff
         super().__init__(*args, **kwargs)
         self.duration = duration
-        self.base_tick_rate = (
-            duration / self.ticks
-        )  # TODO: Make Tickrate take into consideration haste.
+        self.base_tick_rate = duration / self.ticks
+        self.tick_rate = 0
         self.time_to_next_tick = 0
 
     def cast(self, do_damage=False):
@@ -251,6 +254,9 @@ class BaseBuff(BaseSpell):
 
     def apply_buff(self) -> None:
         """Applies the debuff to the target."""
+        self.tick_rate = self.base_tick_rate * (
+            1 + (self.character.get_haste() / 100)
+        )
         self.remaining_time = self.duration
         self.character.buffs[self.simfell_name] = self
         print(

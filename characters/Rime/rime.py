@@ -233,7 +233,7 @@ class FreezingTorrent(RimeSpell):
         )
 
     def on_tick(self):
-        self.character.anima += self.anima_per_tick
+        self.character.gain_anima(self.anima_per_tick)
         if (
             self.character.simulation.debuffs.get(
                 DanceOfSwallows().simfell_name
@@ -256,6 +256,9 @@ class BurstingIce(RimeDebuff):
             ticks=6,
             duration=3,
         )
+
+    def on_tick(self):
+        self.character.gain_anima(self.anima_per_tick)
 
 
 class GlacialBlast(RimeSpell):
