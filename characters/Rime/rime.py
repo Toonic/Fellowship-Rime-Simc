@@ -1,3 +1,5 @@
+"""Module for the Rime Character."""
+
 from base import BaseCharacter
 from base import BaseSpell
 from base.spell import BaseDebuff
@@ -187,9 +189,6 @@ class WrathOfWinter(RimeBuff):
         )
 
     def on_tick(self):
-        print(
-            "Error: Tickrate is incorrect currently. Should be every 2 seconds."
-        )
         self.character.gain_winter_orbs(1)
 
     def apply_buff(self):
