@@ -197,7 +197,7 @@ class BaseDebuff(BaseSpell):
         self.time_to_next_tick = self.tick_rate
         self.character.simulation.debuffs[self.simfell_name] = self
         print(
-            f"Time {self.character.simulation.time:.2f}: "
+            f"-------->  Time {self.character.simulation.time:.2f}: "
             + f"Applied {self.name} "
             + "debuff to enemy."
         )
@@ -205,7 +205,7 @@ class BaseDebuff(BaseSpell):
 
     def update_remaining_duration(self, delta_time: int) -> None:
         """Decreases the remaining buff/debuff duration by the delta time."""
-        print(f"Time {self.character.simulation.time:.2f}: " + "updated time")
+        # print(f"Time {self.character.simulation.time:.2f}: " + "updated time")
         while delta_time > 0 and self.remaining_time > 0:
             if delta_time >= self.time_to_next_tick:
                 delta_time -= self.time_to_next_tick
@@ -226,11 +226,10 @@ class BaseDebuff(BaseSpell):
 
     def remove_debuff(self) -> None:
         """Removes the debuff from the target."""
-        print("Debuff Removed")
         self.remaining_time = 0
-        del self.character.simulation.debuffs[self.simfell_name]
+        self.character.simulation.debuffs.pop(self.simfell_name, None)
         print(
-            f"Time {self.character.simulation.time:.2f}: "
+            f"--------> Time {self.character.simulation.time:.2f}: "
             + f"Removed {self.name} "
             + "debuff from enemy."
         )
@@ -291,7 +290,7 @@ class BaseBuff(BaseSpell):
     def remove_buff(self) -> None:
         """Removes the buff from the character."""
         self.remaining_time = 0
-        del self.character.buffs[self.simfell_name]
+        self.character.buffs.pop(self.simfell_name, None)
         print(
             f"Time {self.character.simulation.time:.2f}: "
             + f"Removed {self.name} "

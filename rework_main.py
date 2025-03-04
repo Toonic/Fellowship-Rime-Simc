@@ -10,6 +10,7 @@ from characters.Rime.rime import (
     GlacialBlast,
 )
 from rework_sim import Simulation
+from copy import deepcopy
 
 
 def main():
@@ -27,16 +28,21 @@ def main():
     character.rotation.append(ColdSnap().simfell_name)
     character.rotation.append(BurstingIce().simfell_name)
     ## character.rotation.append(IceComet().simfell_name)
-    character.rotation.append(GlacialBlast().simfell_name)
     character.rotation.append(FreezingTorrent().simfell_name)
+    character.rotation.append(GlacialBlast().simfell_name)
     character.rotation.append(FrostBolt().simfell_name)
 
     debug_sim(character)
 
 
 def debug_sim(character):
-    sim = Simulation(character, duration=120, doDebug=True)
-    sim.run()
+    total = 0
+    runCount = 2000
+    for _ in range(runCount):
+        sim = Simulation(deepcopy(character), duration=120, doDebug=True)
+        total += sim.run() / 120
+    print(total)
+    print(total / runCount)
 
 
 if __name__ == "__main__":
