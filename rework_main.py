@@ -1,6 +1,7 @@
 """Main file for the rework sim."""
 
 import argparse
+from typing import Optional
 from copy import deepcopy
 from rich import box
 from rich.console import Console
@@ -44,8 +45,6 @@ def handle_configuration(
         arguments.custom_character,
         arguments.talent_tree,
         arguments.enemy_count,
-        arguments.duration,
-        arguments.run_count,
     ]
 
     if arguments.simfile and any(checked_arguments):
@@ -167,9 +166,10 @@ def main(arguments: argparse.Namespace):
                     character.add_talent(rime_talent.value.name)
 
     # TODO: This should be a list of SimFell Actions.
-    character.rotation.append(WrathOfWinter().simfell_name)
-    character.rotation.append(IceBlitz().simfell_name)
-    character.rotation.append(DanceOfSwallows().simfell_name)
+    # character.rotation.append(WrathOfWinter().simfell_name)
+    # character.rotation.append(IceBlitz().simfell_name)
+    # character.rotation.append(DanceOfSwallows().simfell_name)
+    # character.rotation.append(FreezingTorrent().simfell_name)
     character.rotation.append(ColdSnap().simfell_name)
     character.rotation.append(BurstingIce().simfell_name)
     character.rotation.append(FreezingTorrent().simfell_name)
@@ -201,15 +201,14 @@ def main(arguments: argparse.Namespace):
     # Sim Options - Uncomment one to run.
     match arguments.simulation_type:
         case "average_dps":
-            raise NotImplementedError("Average DPS not implemented yet.")
-            # average_dps(
-            #     table,
-            #     character,
-            #     configuration.duration,
-            #     configuration.run_count,
-            #     configuration.enemies,
-            #     arguments.experimental_feature,
-            # )
+            average_dps(
+                table,
+                character,
+                configuration.duration,
+                configuration.run_count,
+                configuration.enemies,
+                arguments.experimental_feature,
+            )
         case "stat_weights":
             raise NotImplementedError("Stat Weights not implemented yet.")
             # stat_weights(
@@ -241,12 +240,32 @@ def debug_sim(
     Creates a deterministic simulation with 0 crit and spirit.
     """
 
-    total = 0
-    run_count = 1
+    sim = Simulation(
+        character,
+        duration=duration,
+        enemy_count=enemy_count,
+        do_debug=True,
+        is_deterministic=True,
+    )
+    dps = sim.run()
+
+    table.add_row("Total DPS", f"[bold magenta]{dps:.2f}", end_section=True)
+
+
+def average_dps(
+    table: Table,
+    character: Rime,
+    duration: int,
+    run_count: int,
+    enemy_count: int,
+    use_experimental: bool,
+    stat_name: Optional[str] = None,
+) -> float:
+    """Runs a simulation and returns the average DPS."""
 
     with Progress(
         TextColumn(
-            "[bold]Running Debug Simulation[/bold] "
+            f"[bold]{stat_name if stat_name else 'Calculating DPS'}[/bold] "
             + "[progress.percentage]{task.percentage:>3.0f}%"
         ),
         BarColumn(),
@@ -256,21 +275,79 @@ def debug_sim(
         TextColumn("•"),
         TimeRemainingColumn(),
     ) as progress:
-        task = progress.add_task("Running Debug Simulation", total=run_count)
+        dps_running_total = 0
+        dps_lowest = float("inf")
+        dps_highest = float("-inf")
+
+        task = progress.add_task(f"{stat_name}", total=run_count)
 
         for _ in range(run_count):
+            character_copy = deepcopy(character)
             sim = Simulation(
-                deepcopy(character),
+                character_copy,
                 duration=duration,
                 enemy_count=enemy_count,
-                do_debug=True,
+                do_debug=False,
+                is_deterministic=False,
             )
-            total += sim.run() / duration
+            dps = sim.run()
 
             progress.update(task, advance=1)
 
-    table.add_row("Total DPS", f"[bold magenta]{total:.2f}")
-    table.add_row("Average DPS", f"[bold magenta]{total / run_count:.2f}")
+            dps_lowest = min(dps, dps_lowest)
+            dps_highest = max(dps, dps_highest)
+
+            dps_running_total += dps
+        avg_dps = dps_running_total / run_count
+
+    table.add_row(
+        "Average DPS" if not stat_name else f"Average DPS ({stat_name})",
+        f"[bold magenta]{avg_dps:.2f}",
+    )
+    table.add_row(
+        "Lowest DPS" if not stat_name else f"Lowest DPS ({stat_name})",
+        f"[bold magenta]{dps_lowest:.2f}",
+    )
+    table.add_row(
+        "Highest DPS" if not stat_name else f"Highest DPS ({stat_name})",
+        f"[bold magenta]{dps_highest:.2f}",
+        end_section=True,
+    )
+
+    # Experimental: Damage Table
+    # ---------------------------
+    if not stat_name and use_experimental:
+        damage_sum = sum(damage for _, damage in sim.damage_table.items())
+
+        # Sort sim.damage_table by damage dealt from highest to lowest.
+        # Remove rows with 0 values
+        sorted_damage_table = {
+            k: v
+            for k, v in sorted(
+                sim.damage_table.items(),
+                key=lambda item: item[1],
+                reverse=True,
+            )
+            if v > 0
+        }
+
+        table.add_row(
+            "[bold yellow]-------- Experimental!",
+            "[bold yellow]Do not trust! --------",
+        )
+
+        # make first 3 rows bold
+        for i, (spell, damage) in enumerate(sorted_damage_table.items()):
+            spell_name = f"[bold]{spell}" if i < 3 else spell
+            damage = (
+                f"[bold dark_red]{round(damage, 3)} ({damage/damage_sum:.2%})"
+                if i < 3
+                else f"[magenta]{round(damage, 3)} ({damage/damage_sum:.2%})"
+            )
+
+            table.add_row(spell_name, damage)
+
+    return avg_dps
 
 
 if __name__ == "__main__":
@@ -290,7 +367,6 @@ if __name__ == "__main__":
         "-e",
         "--enemy-count",
         type=int,
-        default=1,
         help="Number of enemies to simulate.",
     )
     parser.add_argument(

@@ -2,12 +2,20 @@
 
 from typing import Dict
 from base.spell import BaseDebuff
+from base.character import BaseCharacter
 
 
 class Simulation:
     """Class for the Simulation."""
 
-    def __init__(self, character, duration=180, enemy_count=1, do_debug=False):
+    def __init__(
+        self,
+        character: BaseCharacter,
+        duration=180,
+        enemy_count=1,
+        do_debug=False,
+        is_deterministic=False,
+    ):
         """Initialize the Simulation."""
 
         self.character = character
@@ -20,6 +28,12 @@ class Simulation:
         self.ability_queue = []
         self.debuffs: Dict[str, BaseDebuff] = {}
         self.damage = 0
+        self.damage_table = {}
+        self.is_deterministic = is_deterministic
+
+        if self.is_deterministic:
+            self.character._crit = 0
+            self.character._spirit = 0
 
     def update_time(self, delta_time: float):
         """Update the time of the simulation."""
@@ -50,25 +64,28 @@ class Simulation:
 
         while self.time <= self.duration:
             if self.gcd > 0:
-                print(
-                    f"Time {self.time:.2f}: GCD: {self.gcd:.2f}"
-                    + " | Updating time by GCD"
-                )
+                if self.do_debug:
+                    print(
+                        f"Time {self.time:.2f}: GCD: {self.gcd:.2f}"
+                        + " | Updating time by GCD"
+                    )
                 self.update_time(self.gcd)
 
             for spell in self.character.rotation:
                 if self.character.spells[spell].is_ready():
-                    print(
-                        f"Time {self.time:.2f}: "
-                        + f"Casting {self.character.spells[spell].name}. "
-                    )
+                    if self.do_debug:
+                        print(
+                            f"Time {self.time:.2f}: "
+                            + f"Casting {self.character.spells[spell].name}. "
+                        )
                     self.character.spells[spell].cast()
                     break
             else:
-                print(
-                    f"Time {self.time:.2f}: No Spell Ready"
-                    + " | Updating time by 0.1"
-                )
+                if self.do_debug:
+                    print(
+                        f"Time {self.time:.2f}: No Spell Ready"
+                        + " | Updating time by 0.1"
+                    )
                 self.update_time(0.1)
 
-        return self.damage
+        return self.damage / self.duration
