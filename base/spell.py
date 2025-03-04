@@ -92,7 +92,7 @@ class BaseSpell(ABC):
         damage = self.damage_percent  # The base damage of the spell.
         damage = self.damage_modifiers(
             damage
-        )  # Any additional modifiers being applied.
+        )  # Damage modifiers that modify the base %.
         damage = self.damage_modified_player_stats(
             damage
         )  # The damage after being modified by player stats.
@@ -113,8 +113,7 @@ class BaseSpell(ABC):
                 + f"dealing {damage:.2f} damage"
             )
 
-        # TODO: Apply damage to simulation here instead?
-        # self.character.simulation.apply_damage(damage)
+        self.character.simulation.damage += damage
 
     # Used as an override for damage modifiers from Talents and other sources.
     def damage_modifiers(self, damage) -> float:
@@ -195,6 +194,7 @@ class BaseDebuff(BaseSpell):
         self.tick_rate = self.base_tick_rate * (
             1 + (self.character.get_haste() / 100)
         )
+        self.time_to_next_tick = self.tick_rate
         self.character.simulation.debuffs[self.simfell_name] = self
         print(
             f"Time {self.character.simulation.time:.2f}: "
@@ -222,9 +222,9 @@ class BaseDebuff(BaseSpell):
 
     def remove_debuff(self) -> None:
         """Removes the debuff from the target."""
+        print("Debuff Removed")
         self.remaining_time = 0
-        if self.simfell_name in self.character.simulation.debuffs:
-            del self.character.simulation.debuffs[self.simfell_name]
+        del self.character.simulation.debuffs[self.simfell_name]
         print(
             f"Time {self.character.simulation.time:.2f}: "
             + f"Removed {self.name} "
@@ -258,6 +258,7 @@ class BaseBuff(BaseSpell):
         self.tick_rate = self.base_tick_rate * (
             1 + (self.character.get_haste() / 100)
         )
+        self.time_to_next_tick = self.tick_rate
         self.remaining_time = self.duration
         self.character.buffs[self.simfell_name] = self
         print(
@@ -286,6 +287,7 @@ class BaseBuff(BaseSpell):
 
     def remove_buff(self) -> None:
         """Removes the buff from the character."""
+        print("Test - Debuff")
         self.remaining_time = 0
         del self.character.buffs[self.simfell_name]
         print(
