@@ -1,7 +1,7 @@
 """Main file for the rework sim."""
 
 import argparse
-from typing import Optional
+from typing import Optional, Tuple
 from copy import deepcopy
 from rich import box
 from rich.console import Console
@@ -37,7 +37,7 @@ from rework_sim import Simulation
 
 def handle_configuration(
     arguments: argparse.Namespace,
-) -> SimFellConfiguration:
+) -> Tuple[SimFellConfiguration, Rime]:
     """Handles the configuration based on the arguments."""
 
     checked_arguments = [
@@ -62,6 +62,13 @@ def handle_configuration(
     if arguments.simfile:
         simfile_parser = SimFileParser(arguments.simfile)
         configuration = simfile_parser.parse()
+        character = Rime(
+            intellect=configuration.intellect,
+            crit=configuration.crit,
+            expertise=configuration.expertise,
+            haste=configuration.haste,
+            spirit=configuration.spirit,
+        )
     else:
         if arguments.custom_character:
             try:
@@ -117,13 +124,13 @@ def handle_configuration(
             gear=Gear(helmet=None, shoulder=None),
         )
 
-    return configuration
+    return configuration, character
 
 
 def main(arguments: argparse.Namespace):
     """Main function."""
 
-    configuration = handle_configuration(arguments)
+    configuration, character = handle_configuration(arguments)
 
     print()
 
@@ -144,14 +151,6 @@ def main(arguments: argparse.Namespace):
         "Preset",
         arguments.preset if arguments.preset else RimePreset.DEFAULT.name,
         end_section=True,
-    )
-
-    character = Rime(
-        intellect=configuration.intellect,
-        crit=configuration.crit,
-        expertise=configuration.expertise,
-        haste=configuration.haste,
-        spirit=configuration.spirit,
     )
 
     # Parse the talent tree argument.
