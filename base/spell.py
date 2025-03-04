@@ -190,7 +190,7 @@ class BaseDebuff(BaseSpell):
         # Fellowship for some reason has an additional 0.15 Seconds
         # for debuffs. WHY?!
         self.remaining_time = self.duration + 0.15
-        self.tick_rate = self.base_tick_rate * (
+        self.tick_rate = self.base_tick_rate / (
             1 + (self.character.get_haste() / 100)
         )
         # self.tick_rate = self.base_tick_rate  # Temporary testing against old.
@@ -272,7 +272,7 @@ class BaseBuff(BaseSpell):
 
     def apply_buff(self) -> None:
         """Applies the debuff to the target."""
-        self.tick_rate = self.base_tick_rate * (
+        self.tick_rate = self.base_tick_rate / (
             1 + (self.character.get_haste() / 100)
         )
         # self.tick_rate = self.base_tick_rate  # Temporary testing against old.
