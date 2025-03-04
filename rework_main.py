@@ -17,12 +17,12 @@ from rich.progress import (
 
 from characters.Rime import Rime
 from characters.Rime.rime import (
-    # WrathOfWinter,
+    WrathOfWinter,
     FrostBolt,
-    # IceBlitz,
+    IceBlitz,
     ColdSnap,
-    # DanceOfSwallows,
-    # FreezingTorrent,
+    DanceOfSwallows,
+    FreezingTorrent,
     BurstingIce,
     GlacialBlast,
     # IceComet,
@@ -167,12 +167,12 @@ def main(arguments: argparse.Namespace):
                     character.add_talent(rime_talent.value.name)
 
     # TODO: This should be a list of SimFell Actions.
-    # character.rotation.append(WrathOfWinter().simfell_name)
-    # character.rotation.append(IceBlitz().simfell_name)
-    # character.rotation.append(DanceOfSwallows().simfell_name)
+    character.rotation.append(WrathOfWinter().simfell_name)
+    character.rotation.append(IceBlitz().simfell_name)
+    character.rotation.append(DanceOfSwallows().simfell_name)
     character.rotation.append(ColdSnap().simfell_name)
     character.rotation.append(BurstingIce().simfell_name)
-    # character.rotation.append(IceComet().simfell_name)
+    character.rotation.append(FreezingTorrent().simfell_name)
     character.rotation.append(GlacialBlast().simfell_name)
     character.rotation.append(FrostBolt().simfell_name)
 
@@ -242,7 +242,7 @@ def debug_sim(
     """
 
     total = 0
-    run_count = 10
+    run_count = 1
 
     with Progress(
         TextColumn(
