@@ -190,10 +190,10 @@ class BaseDebuff(BaseSpell):
         # Fellowship for some reason has an additional 0.15 Seconds
         # for debuffs. WHY?!
         self.remaining_time = self.duration + 0.15
-        # self.tick_rate = self.base_tick_rate * (
-        #     1 + (self.character.get_haste() / 100)
-        # )
-        self.tick_rate = self.base_tick_rate  # Temporary testing against old.
+        self.tick_rate = self.base_tick_rate * (
+            1 + (self.character.get_haste() / 100)
+        )
+        # self.tick_rate = self.base_tick_rate  # Temporary testing against old.
         self.time_to_next_tick = self.tick_rate
         self.character.simulation.debuffs[self.simfell_name] = self
         self._is_active = True
@@ -219,7 +219,7 @@ class BaseDebuff(BaseSpell):
             if delta_time >= self.time_to_next_tick:
                 delta_time -= self.time_to_next_tick
                 self.remaining_time -= self.time_to_next_tick
-                self.time_to_next_tick = self.base_tick_rate
+                self.time_to_next_tick = self.tick_rate
                 self.on_tick()
             else:
                 self.time_to_next_tick -= delta_time
@@ -272,10 +272,10 @@ class BaseBuff(BaseSpell):
 
     def apply_buff(self) -> None:
         """Applies the debuff to the target."""
-        # self.tick_rate = self.base_tick_rate * (
-        #     1 + (self.character.get_haste() / 100)
-        # )
-        self.tick_rate = self.base_tick_rate  # Temporary testing against old.
+        self.tick_rate = self.base_tick_rate * (
+            1 + (self.character.get_haste() / 100)
+        )
+        # self.tick_rate = self.base_tick_rate  # Temporary testing against old.
         self.time_to_next_tick = self.tick_rate
         self.remaining_time = self.duration
         self.character.buffs[self.simfell_name] = self
@@ -296,7 +296,7 @@ class BaseBuff(BaseSpell):
         while delta_time > 0 and self.remaining_time > 0:
             if delta_time >= self.time_to_next_tick:
                 self.remaining_time -= self.time_to_next_tick
-                self.time_to_next_tick = self.base_tick_rate
+                self.time_to_next_tick = self.tick_rate
                 self.on_tick()
             else:
                 self.time_to_next_tick -= delta_time

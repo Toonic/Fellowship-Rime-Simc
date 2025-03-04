@@ -168,7 +168,6 @@ def main(arguments: argparse.Namespace):
     character.rotation.append(WrathOfWinter().simfell_name)
     character.rotation.append(IceBlitz().simfell_name)
     character.rotation.append(DanceOfSwallows().simfell_name)
-    character.rotation.append(FreezingTorrent().simfell_name)
     character.rotation.append(ColdSnap().simfell_name)
     character.rotation.append(BurstingIce().simfell_name)
     character.rotation.append(FreezingTorrent().simfell_name)
