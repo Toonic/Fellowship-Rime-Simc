@@ -3,6 +3,7 @@
 import random
 from abc import ABC
 from typing import TYPE_CHECKING, final
+from rich import print  # pylint: disable=redefined-builtin
 
 if TYPE_CHECKING:
     from .character import BaseCharacter
@@ -109,8 +110,8 @@ class BaseSpell(ABC):
             if self.character.simulation.do_debug:
                 print(
                     f"Time {self.character.simulation.time:.2f}: "
-                    + f"{self.name} "
-                    + f"deals {damage:.2f} damage"
+                    + f"[cornflower_blue]{self.name}[/cornflower_blue] "
+                    + f"deals [bold red]{damage:.2f}[/bold red] damage"
                 )
 
         self.character.simulation.damage += damage
@@ -201,38 +202,35 @@ class BaseDebuff(BaseSpell):
         if self.character.simulation.do_debug:
             print(
                 f"Time {self.character.simulation.time:.2f}: "
-                + f"Applied {self.name} "
-                + "debuff to enemy."
+                + f"Applied [deep_pink4]{self.name} "
+                + "(Debuff)[/deep_pink4] to enemy."
             )
         # TODO: Determine if there is a maximum buff/debuff count,
         # and if re-casting it refreshes the duration.
 
     def update_remaining_duration(self, delta_time: int) -> None:
         """Decreases the remaining buff/debuff duration by the delta time."""
-        if self.character.simulation.do_debug:
-            print(
-                f"Time {self.character.simulation.time:.2f}: "
-                + "Updating remaining duration"
-            )
 
-        while delta_time > 0 and self.remaining_time > 0:
-            if delta_time >= self.time_to_next_tick:
-                delta_time -= self.time_to_next_tick
-                self.remaining_time -= self.time_to_next_tick
-                self.time_to_next_tick = self.tick_rate
-                self.on_tick()
-            else:
-                self.time_to_next_tick -= delta_time
-                self.remaining_time -= delta_time
-                delta_time = 0
+        if self._is_active:
+            while delta_time > 0 and self.remaining_time > 0:
+                if delta_time >= self.time_to_next_tick:
+                    delta_time -= self.time_to_next_tick
+                    self.remaining_time -= self.time_to_next_tick
+                    self.time_to_next_tick = self.tick_rate
+                    self.on_tick()
+                else:
+                    self.time_to_next_tick -= delta_time
+                    self.remaining_time -= delta_time
+                    delta_time = 0
 
-        if self.remaining_time <= 0 and self._is_active:
-            if self.character.simulation.do_debug:
-                print(
-                    f"Time {self.character.simulation.time:.2f}: "
-                    + f"Removing {self.name} debuff"
-                )
-            self.remove_debuff()
+            if self.remaining_time <= 0 and self._is_active:
+                if self.character.simulation.do_debug:
+                    print(
+                        f"Time {self.character.simulation.time:.2f}: "
+                        + f"Removing [deep_pink4]{self.name} "
+                        + "(Debuff)[/deep_pink4]"
+                    )
+                self.remove_debuff()
 
     def remove_debuff(self) -> None:
         """Removes the debuff from the target."""
@@ -244,8 +242,8 @@ class BaseDebuff(BaseSpell):
         if self.character.simulation.do_debug:
             print(
                 f"Time {self.character.simulation.time:.2f}: "
-                + f"Removed {self.name} "
-                + "debuff from enemy."
+                + f"Removed [deep_pink4]{self.name} "
+                + "(Debuff)[/deep_pink4] from enemy."
             )
 
 
@@ -285,26 +283,28 @@ class BaseBuff(BaseSpell):
         if self.character.simulation.do_debug:
             print(
                 f"Time {self.character.simulation.time:.2f}: "
-                + f"Applied {self.name} "
-                + "buff to character."
+                + f"Applied [dark_green]{self.name} "
+                + "(Buff)[/dark_green] to character."
             )
         # TODO: Determine if there is a maximum buff/debuff count,
         # and if re-casting it refreshes the duration.
 
     def update_remaining_duration(self, delta_time: float) -> None:
         """Decreases the remaining buff duration by the delta time."""
-        while delta_time > 0 and self.remaining_time > 0:
-            if delta_time >= self.time_to_next_tick:
-                self.remaining_time -= self.time_to_next_tick
-                self.time_to_next_tick = self.tick_rate
-                self.on_tick()
-            else:
-                self.time_to_next_tick -= delta_time
-                self.remaining_time -= delta_time
-                delta_time = 0
 
-        if self.remaining_time <= 0 and self._is_active:
-            self.remove_buff()
+        if self._is_active:
+            while delta_time > 0 and self.remaining_time > 0:
+                if delta_time >= self.time_to_next_tick:
+                    self.remaining_time -= self.time_to_next_tick
+                    self.time_to_next_tick = self.tick_rate
+                    self.on_tick()
+                else:
+                    self.time_to_next_tick -= delta_time
+                    self.remaining_time -= delta_time
+                    delta_time = 0
+
+            if self.remaining_time <= 0 and self._is_active:
+                self.remove_buff()
 
     def remove_buff(self) -> None:
         """Removes the buff from the character."""
@@ -315,6 +315,6 @@ class BaseBuff(BaseSpell):
         if self.character.simulation.do_debug:
             print(
                 f"Time {self.character.simulation.time:.2f}: "
-                + f"Removed {self.name} "
-                + "buff from character."
+                + f"Removed [dark_green]{self.name} "
+                + "(Buff)[/dark_green] from character."
             )

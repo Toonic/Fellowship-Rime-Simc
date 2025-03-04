@@ -1,7 +1,7 @@
 """Module for the Character class."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, TYPE_CHECKING
+from typing import Dict, List, TYPE_CHECKING, Optional
 
 # from enum import Enum
 
@@ -9,6 +9,7 @@ from typing import Dict, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from spell import BaseSpell
     from spell import BaseBuff
+    from rework_sim import Simulation
 
 
 class BaseCharacter(ABC):
@@ -38,7 +39,7 @@ class BaseCharacter(ABC):
         # Buffs
         self.buffs: Dict[str, BaseBuff] = {}
         self.configure_spell_book()
-        self.simulation = None
+        self.simulation: Optional["Simulation"] = None
 
         # External Character Stat Buffs - EG: Gems, Gear, Buffs.
         self.damage_multiplier = 0
@@ -54,7 +55,7 @@ class BaseCharacter(ABC):
         self.spirit_multiplier = 0
         self.spirit_additional = 0
 
-    def set_simulation(self, simulation) -> None:
+    def set_simulation(self, simulation: "Simulation") -> None:
         """Sets the simulation for the character."""
         self.simulation = simulation
 

@@ -4,6 +4,8 @@ from typing import Dict
 from base.spell import BaseDebuff
 from base.character import BaseCharacter
 
+from rich import print  # pylint: disable=redefined-builtin
+
 
 class Simulation:
     """Class for the Simulation."""
@@ -46,8 +48,14 @@ class Simulation:
             spell.update_cooldown(delta_time)
 
         # Update Players Buffs
-        for buff_key in list(self.character.buffs.keys()):
-            buff = self.character.buffs.get(buff_key)
+        for buff in list(self.character.buffs.values()):
+            if self.do_debug:
+                print(
+                    f"Time {self.time:.2f}: Updating "
+                    + f"[dark_green]{buff.name} (Buff)[/dark_green] "
+                    + "remaining duration"
+                )
+
             buff.update_remaining_duration(delta_time)
 
         # Update Debuffs on an Enemy.
@@ -55,8 +63,14 @@ class Simulation:
         # and each debuff. This will be important for Multi-Dotting
         # in the future.
 
-        for debuff_key in list(self.debuffs.keys()):
-            debuff = self.debuffs.get(debuff_key)
+        for debuff in list(self.debuffs.values()):
+            if self.do_debug:
+                print(
+                    f"Time {self.time:.2f}: Updating "
+                    + f"[deep_pink4]{debuff.name} (Debuff)[/deep_pink4] "
+                    + "remaining duration"
+                )
+
             debuff.update_remaining_duration(delta_time)
 
     def run(self):
@@ -67,16 +81,18 @@ class Simulation:
                 if self.do_debug:
                     print(
                         f"Time {self.time:.2f}: GCD: {self.gcd:.2f}"
-                        + " | Updating time by GCD"
+                        + " | [grey37]Updating time by GCD"
                     )
                 self.update_time(self.gcd)
 
             for spell in self.character.rotation:
                 if self.character.spells[spell].is_ready():
                     if self.do_debug:
+                        spell_name = self.character.spells[spell].name
                         print(
                             f"Time {self.time:.2f}: "
-                            + f"Casting {self.character.spells[spell].name}. "
+                            + f"Casting [cornflower_blue]{spell_name}"
+                            + "[/cornflower_blue]. "
                         )
                     self.character.spells[spell].cast()
                     break
