@@ -175,6 +175,8 @@ class BaseDebuff(BaseSpell):
         self.tick_rate = 0
         self.time_to_next_tick = 0
 
+        self._is_active = True
+
     def cast(self, do_damage=False):
         super().cast(do_damage)
 
@@ -194,6 +196,7 @@ class BaseDebuff(BaseSpell):
         self.tick_rate = self.base_tick_rate  # Temporary testing against old.
         self.time_to_next_tick = self.tick_rate
         self.character.simulation.debuffs[self.simfell_name] = self
+        self._is_active = True
 
         if self.character.simulation.do_debug:
             print(
@@ -223,7 +226,7 @@ class BaseDebuff(BaseSpell):
                 self.remaining_time -= delta_time
                 delta_time = 0
 
-        if self.remaining_time <= 0:
+        if self.remaining_time <= 0 and self._is_active:
             if self.character.simulation.do_debug:
                 print(
                     f"Time {self.character.simulation.time:.2f}: "
@@ -236,6 +239,8 @@ class BaseDebuff(BaseSpell):
 
         self.remaining_time = 0
         self.character.simulation.debuffs.pop(self.simfell_name, None)
+        self._is_active = False
+
         if self.character.simulation.do_debug:
             print(
                 f"Time {self.character.simulation.time:.2f}: "
@@ -256,6 +261,8 @@ class BaseBuff(BaseSpell):
         self.tick_rate = 0
         self.time_to_next_tick = 0
 
+        self._is_active = True
+
     def cast(self, do_damage=False):
         super().cast(do_damage)
 
@@ -272,6 +279,8 @@ class BaseBuff(BaseSpell):
         self.time_to_next_tick = self.tick_rate
         self.remaining_time = self.duration
         self.character.buffs[self.simfell_name] = self
+
+        self._is_active = True
 
         if self.character.simulation.do_debug:
             print(
@@ -294,7 +303,7 @@ class BaseBuff(BaseSpell):
                 self.remaining_time -= delta_time
                 delta_time = 0
 
-        if self.remaining_time <= 0:
+        if self.remaining_time <= 0 and self._is_active:
             self.remove_buff()
 
     def remove_buff(self) -> None:
@@ -302,7 +311,7 @@ class BaseBuff(BaseSpell):
 
         self.remaining_time = 0
         self.character.buffs.pop(self.simfell_name, None)
-
+        self._is_active = False
         if self.character.simulation.do_debug:
             print(
                 f"Time {self.character.simulation.time:.2f}: "
