@@ -109,8 +109,8 @@ class BaseSpell(ABC):
         if damage > 0:
             print(
                 f"Time {self.character.simulation.time:.2f}: "
-                + f"Cast {self.name} "
-                + f"dealing {damage:.2f} damage"
+                + f"{self.name} "
+                + f"deals {damage:.2f} damage"
             )
 
         self.character.simulation.damage += damage
@@ -205,7 +205,7 @@ class BaseDebuff(BaseSpell):
 
     def update_remaining_duration(self, delta_time: int) -> None:
         """Decreases the remaining buff/debuff duration by the delta time."""
-
+        print(f"Time {self.character.simulation.time:.2f}: " + "updated time")
         while delta_time > 0 and self.remaining_time > 0:
             if delta_time >= self.time_to_next_tick:
                 delta_time -= self.time_to_next_tick
@@ -218,6 +218,10 @@ class BaseDebuff(BaseSpell):
                 delta_time = 0
 
         if self.remaining_time <= 0:
+            print(
+                f"Time {self.character.simulation.time:.2f}: "
+                + "The ONly remove"
+            )
             self.remove_debuff()
 
     def remove_debuff(self) -> None:
@@ -270,7 +274,6 @@ class BaseBuff(BaseSpell):
 
     def update_remaining_duration(self, delta_time: float) -> None:
         """Decreases the remaining buff duration by the delta time."""
-
         while delta_time > 0 and self.remaining_time > 0:
             if delta_time >= self.time_to_next_tick:
                 delta_time -= self.time_to_next_tick
@@ -287,7 +290,6 @@ class BaseBuff(BaseSpell):
 
     def remove_buff(self) -> None:
         """Removes the buff from the character."""
-        print("Test - Debuff")
         self.remaining_time = 0
         del self.character.buffs[self.simfell_name]
         print(

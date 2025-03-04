@@ -34,6 +34,7 @@ class Simulation:
         #      This will be important for Multi-Dotting  in the future.
 
         for debuff_key in list(self.debuffs.keys()):
+            print(debuff_key)
             debuff = self.debuffs.get(debuff_key)
             debuff.update_remaining_duration(delta_time)
 
