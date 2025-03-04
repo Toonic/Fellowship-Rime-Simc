@@ -2,6 +2,7 @@
 
 from simfell_parser.condition_parser import SimFileConditionParser
 from simfell_parser.simfile_parser import SimFileParser
+from simfell_parser.utils import SpellType
 
 
 parser = SimFileParser("test.simfell")
@@ -18,6 +19,13 @@ for action in configuration.actions:
 
     print(f"Action: '{action.name}', Conditions: {len(action.conditions)}")
 
+    spell: SpellType = configuration.character.spells.get(
+        action.name.split("/")[1], None
+    )
+    if not spell:
+        print(f"Spell '{action.name}' not found in character spells")
+        continue
+
     character_result = SimFileConditionParser.evaluate_character(
         action.conditions, configuration.character
     )
@@ -26,6 +34,9 @@ for action in configuration.actions:
         configuration.character,
     )
 
+    is_spell_ready = spell.is_ready()
+
     print(f"\tCharacter Result: {character_result}")
     print(f"\tSpell Result: {spell_result}")
+    print(f"\tSpell Ready: {is_spell_ready}")
     print("\t=====================\n")
