@@ -4,6 +4,7 @@ from typing import Any, List, Optional
 from pydantic import BaseModel
 
 from simfell_parser.enums import Gem, TierSet, Tier
+from simfell_parser.utils import CharacterType, map_character_name_to_class
 
 
 class Condition(BaseModel):
@@ -12,6 +13,9 @@ class Condition(BaseModel):
     left: str
     operator: str
     right: Any
+
+    def __str__(self):
+        return f"{self.left} {self.operator} {self.right}"
 
 
 class Action(BaseModel):
@@ -81,3 +85,16 @@ class SimFellConfiguration(BaseModel):
         """Convert the configuration to a JSON string."""
 
         return self.model_dump_json(indent=2)
+
+    @property
+    def character(self) -> CharacterType:
+        """Return the character for the configuration."""
+
+        character_class = map_character_name_to_class(self.hero)
+        return character_class(
+            intellect=self.intellect,
+            crit=self.crit,
+            expertise=self.expertise,
+            haste=self.haste,
+            spirit=self.spirit,
+        )
