@@ -44,8 +44,6 @@ def handle_configuration(
         arguments.custom_character,
         arguments.talent_tree,
         arguments.enemy_count,
-        arguments.duration,
-        arguments.run_count,
     ]
 
     if arguments.simfile and any(checked_arguments):
@@ -290,7 +288,6 @@ if __name__ == "__main__":
         "-e",
         "--enemy-count",
         type=int,
-        default=1,
         help="Number of enemies to simulate.",
     )
     parser.add_argument(
