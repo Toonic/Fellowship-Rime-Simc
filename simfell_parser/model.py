@@ -61,10 +61,10 @@ class SimFellConfiguration(BaseModel):
     name: str
     hero: str
     intellect: int
-    crit: int
-    expertise: int
-    haste: int
-    spirit: int
+    crit: float
+    expertise: float
+    haste: float
+    spirit: float
     talents: str
     trinket1: Optional[str]
     trinket2: Optional[str]
