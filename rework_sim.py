@@ -51,7 +51,7 @@ class Simulation:
         for buff in list(self.character.buffs.values()):
             if self.do_debug:
                 print(
-                    f"Time {self.time:.2f}: Updating "
+                    f"Time {self.time:.2f}: 🔄 Updating "
                     + f"[dark_green]{buff.name} (Buff)[/dark_green] "
                     + "remaining duration"
                 )
@@ -66,7 +66,7 @@ class Simulation:
         for debuff in list(self.debuffs.values()):
             if self.do_debug:
                 print(
-                    f"Time {self.time:.2f}: Updating "
+                    f"Time {self.time:.2f}: 🔄 Updating "
                     + f"[deep_pink4]{debuff.name} (Debuff)[/deep_pink4] "
                     + "remaining duration"
                 )
@@ -91,7 +91,7 @@ class Simulation:
                         spell_name = self.character.spells[spell].name
                         print(
                             f"Time {self.time:.2f}: "
-                            + f"Casting [cornflower_blue]{spell_name}"
+                            + f"🔮 Casting [cornflower_blue]{spell_name}"
                             + "[/cornflower_blue]. "
                         )
                     self.character.spells[spell].cast()

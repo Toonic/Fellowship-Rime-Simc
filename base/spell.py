@@ -110,7 +110,7 @@ class BaseSpell(ABC):
             if self.character.simulation.do_debug:
                 print(
                     f"Time {self.character.simulation.time:.2f}: "
-                    + f"[cornflower_blue]{self.name}[/cornflower_blue] "
+                    + f"💥 [cornflower_blue]{self.name}[/cornflower_blue] "
                     + f"deals [bold red]{damage:.2f}[/bold red] damage"
                 )
 
@@ -202,7 +202,7 @@ class BaseDebuff(BaseSpell):
         if self.character.simulation.do_debug:
             print(
                 f"Time {self.character.simulation.time:.2f}: "
-                + f"Applied [deep_pink4]{self.name} "
+                + f"✔️ Applied [deep_pink4]{self.name} "
                 + "(Debuff)[/deep_pink4] to enemy."
             )
         # TODO: Determine if there is a maximum buff/debuff count,
@@ -227,7 +227,7 @@ class BaseDebuff(BaseSpell):
                 if self.character.simulation.do_debug:
                     print(
                         f"Time {self.character.simulation.time:.2f}: "
-                        + f"Removing [deep_pink4]{self.name} "
+                        + f"❌ Removing [deep_pink4]{self.name} "
                         + "(Debuff)[/deep_pink4]"
                     )
                 self.remove_debuff()
@@ -242,7 +242,7 @@ class BaseDebuff(BaseSpell):
         if self.character.simulation.do_debug:
             print(
                 f"Time {self.character.simulation.time:.2f}: "
-                + f"Removed [deep_pink4]{self.name} "
+                + f"❌ Removed [deep_pink4]{self.name} "
                 + "(Debuff)[/deep_pink4] from enemy."
             )
 
@@ -283,7 +283,7 @@ class BaseBuff(BaseSpell):
         if self.character.simulation.do_debug:
             print(
                 f"Time {self.character.simulation.time:.2f}: "
-                + f"Applied [dark_green]{self.name} "
+                + f"✔️ Applied [dark_green]{self.name} "
                 + "(Buff)[/dark_green] to character."
             )
         # TODO: Determine if there is a maximum buff/debuff count,
@@ -315,6 +315,6 @@ class BaseBuff(BaseSpell):
         if self.character.simulation.do_debug:
             print(
                 f"Time {self.character.simulation.time:.2f}: "
-                + f"Removed [dark_green]{self.name} "
+                + f"❌ Removed [dark_green]{self.name} "
                 + "(Buff)[/dark_green] from character."
             )
