@@ -183,13 +183,14 @@ class BaseDebuff(BaseSpell):
 
     def apply_debuff(self) -> None:
         """Applies the debuff to the target."""
-        self.remaining_time = (
-            self.duration + 0.15
-        )  # Fellowship for some reason has an additional 0.15 Seconds for debuffs. WHY?!
+
+        # Fellowship for some reason has an additional 0.15 Seconds
+        # for debuffs. WHY?!
+        self.remaining_time = self.duration + 0.15
         # self.tick_rate = self.base_tick_rate * (
         #     1 + (self.character.get_haste() / 100)
         # )
-        self.tick_rate = self.base_tick_rate  #! Temporary testing against old.
+        self.tick_rate = self.base_tick_rate  # Temporary testing against old.
         self.time_to_next_tick = self.tick_rate
         self.character.simulation.debuffs[self.simfell_name] = self
         print(
@@ -260,7 +261,7 @@ class BaseBuff(BaseSpell):
         # self.tick_rate = self.base_tick_rate * (
         #     1 + (self.character.get_haste() / 100)
         # )
-        self.tick_rate = self.base_tick_rate  #! Temporary testing against old.
+        self.tick_rate = self.base_tick_rate  # Temporary testing against old.
         self.time_to_next_tick = self.tick_rate
         self.remaining_time = self.duration
         self.character.buffs[self.simfell_name] = self
