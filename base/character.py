@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, TYPE_CHECKING, Optional
 
-from .talent import CharacterTypeT
+from .talent import CharacterTalentT
 
 
 if TYPE_CHECKING:
@@ -35,7 +35,7 @@ class BaseCharacter(ABC):
         self.rotation: List[str] = []
 
         # All the talents.
-        self.talents: List[CharacterTypeT] = []
+        self.talents: List[CharacterTalentT] = []
         # Buffs
         self.buffs: Dict[str, BaseBuff] = {}
         self.configure_spell_book()
@@ -125,7 +125,7 @@ class BaseCharacter(ABC):
         """Returns the character's damage multiplyer."""
         return 1 + self.damage_multiplier
 
-    def add_talent(self, talent: CharacterTypeT) -> None:
+    def add_talent(self, talent: CharacterTalentT) -> None:
         """Adds a talent to the character's available talents."""
         self.talents.append(talent)
 

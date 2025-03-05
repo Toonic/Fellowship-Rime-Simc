@@ -4,7 +4,7 @@ from typing import TypeVar
 from dataclasses import dataclass
 from enum import Enum
 
-CharacterTypeT = TypeVar("CharacterTypeT", bound="CharacterTalent")
+CharacterTalentT = TypeVar("CharacterTalentT", bound="CharacterTalent")
 
 
 @dataclass
