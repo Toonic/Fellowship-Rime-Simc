@@ -1,6 +1,6 @@
 """Module for the Rime Character."""
 
-from rime import RimeSpell
+from rime import RimeSpell, RimeBuff, RimeDebuff
 from base import BaseCharacter
 
 
