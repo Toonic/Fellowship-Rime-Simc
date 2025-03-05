@@ -1,6 +1,12 @@
 """Module for the Rime Character."""
 
 from characters.rime import RimeSpell, RimeBuff, RimeDebuff
+from characters.rime.spells import (
+    WrathOfWinter,
+    FrostBolt,
+    FreezingTorrent,
+    DanceOfSwallows,
+)
 from base import BaseCharacter
 
 
@@ -68,44 +74,6 @@ class Rime(BaseCharacter):
             self.winter_orbs = 0
 
 
-class WrathOfWinter(RimeBuff):
-    """Wrath of Winter Spell"""
-
-    haste_additional_bonus = 30
-    damage_multiplier_bonus = 0.15
-
-    def __init__(self):
-        super().__init__(
-            "Wrath of Winter",
-            cast_time=0,
-            duration=20,
-            ticks=10,
-            cooldown=1000,  # TODO: Spirit Gen instead.
-        )
-
-    def on_tick(self):
-        self.character.gain_winter_orbs(1)
-
-    def apply_buff(self):
-        super().apply_buff()
-        self.character.damage_multiplier += self.damage_multiplier_bonus
-        self.character.haste_additional += self.haste_additional_bonus
-
-    def remove_buff(self):
-        super().remove_buff()
-        self.character.damage_multiplier -= self.damage_multiplier_bonus
-        self.character.haste_additional -= self.haste_additional_bonus
-
-
-class FrostBolt(RimeSpell):
-    """Frost Bolt Spell"""
-
-    def __init__(self):
-        super().__init__(
-            "Frost Bolt", cast_time=1.5, damage_percent=73, anima_gain=3
-        )
-
-
 class ColdSnap(RimeSpell):
     """Cold Snap Spell"""
 
@@ -125,35 +93,6 @@ class ColdSnap(RimeSpell):
             # Dance of Swallows is hard coded to trigger 10 times from ColdSnap
             for _ in range(10):
                 self.character.dance_of_swallows.damage()
-
-
-class FreezingTorrent(RimeSpell):
-    """Freezing Torrent Spell"""
-
-    # TODO: Future note to myself in the future:
-    # I need to code PPM for Soulfrost which is at 1.5 PPM According to Devs.
-    # Use WoW's RPPM calculations for this.
-
-    def __init__(self):
-        super().__init__(
-            "Freezing Torrent",
-            cast_time=2.0,
-            cooldown=10,
-            damage_percent=390,
-            anima_per_tick=1,
-            channeled=True,
-            ticks=6,
-        )
-
-    def on_tick(self):
-        self.character.gain_anima(self.anima_per_tick)
-        if (
-            self.character.simulation.debuffs.get(
-                DanceOfSwallows().simfell_name
-            )
-            is not None
-        ):
-            self.character.dance_of_swallows.damage()
 
 
 class BurstingIce(RimeDebuff):
@@ -199,19 +138,6 @@ class IceComet(RimeSpell):
 
     def __init__(self):
         super().__init__("Ice Comet", damage_percent=300, winter_orb_cost=3)
-
-
-class DanceOfSwallows(RimeDebuff):
-    """Dance of Swallows Spell"""
-
-    def __init__(self):
-        super().__init__(
-            "Dance of Swallows",
-            cooldown=60,
-            duration=20,
-            damage_percent=53,
-            winter_orb_cost=2,
-        )
 
 
 class IceBlitz(RimeBuff):
