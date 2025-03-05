@@ -1,5 +1,7 @@
 """Base class for all buffs."""
 
+from rich import print  # pylint: disable=redefined-builtin
+
 from base import BaseSpell
 
 

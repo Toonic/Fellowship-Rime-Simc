@@ -91,9 +91,10 @@ class BaseCharacter(ABC):
         """Returns the character's damage multiplyer."""
         return 1 + self.damage_multiplier
 
+    def add_talent(self, talent: str) -> None:
+        """Adds a talent to the character's available talents."""
+        self.talents.append(talent)
+
     @abstractmethod
     def configure_spell_book(self) -> None:
         """Adds a spells to the character's spell book."""
-
-    def add_talent(self, talent: str) -> None:
-        """Adds a talent to the character's available talents."""

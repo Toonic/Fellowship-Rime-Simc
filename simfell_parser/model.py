@@ -73,9 +73,9 @@ class SimFellConfiguration(BaseModel):
     expertise: float
     haste: float
     spirit: float
-    talents: str
-    trinket1: Optional[str]
-    trinket2: Optional[str]
+    talents: Optional[str] = None
+    trinket1: Optional[str] = None
+    trinket2: Optional[str] = None
 
     duration: int
     enemies: int
