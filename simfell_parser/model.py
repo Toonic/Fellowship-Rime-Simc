@@ -15,7 +15,11 @@ class Condition(BaseModel):
     right: Any
 
     def __str__(self):
-        return f"{self.left} {self.operator} {self.right}"
+        return (
+            f"[cornflower_blue]{self.left}[/cornflower_blue] "
+            + f"[grey37]{self.operator}[/grey37] "
+            + f"[cyan]{self.right}[/cyan]"
+        )
 
 
 class Action(BaseModel):

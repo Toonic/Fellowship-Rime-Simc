@@ -3,6 +3,7 @@
 from typing import Any, List, Type
 import operator
 import re
+from rich import print  # pylint: disable=redefined-builtin
 
 from simfell_parser.model import Condition
 from simfell_parser.utils import CharacterType
@@ -111,7 +112,7 @@ class SimFileConditionParser:
     ) -> bool:
         """Map a condition to a character attribute."""
 
-        checks = []
+        checks: List[bool] = []
 
         for condition in conditions:
             if condition.left.startswith("character."):
@@ -146,7 +147,7 @@ class SimFileConditionParser:
     ) -> bool:
         """Map a condition to a spell attribute."""
 
-        checks = []
+        checks: List[bool] = []
 
         for condition in conditions:
             if condition.left.startswith("spell."):
