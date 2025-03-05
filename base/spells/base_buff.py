@@ -10,12 +10,14 @@ class BaseBuff(BaseSpell):
 
     remaining_time = 0
 
-    def __init__(self, *args, duration=0, **kwargs):
+    def __init__(self, *args, duration=0, maximum_stacks=1, **kwargs):
         super().__init__(*args, **kwargs)
         self.duration = duration
         self.base_tick_rate = duration / self.ticks
         self.tick_rate = 0
         self.time_to_next_tick = 0
+        self.maximum_stacks = maximum_stacks
+        self.current_stacks = 0
 
         self._is_active = True
 
@@ -28,11 +30,14 @@ class BaseBuff(BaseSpell):
 
     def apply_buff(self) -> None:
         """Applies the debuff to the target."""
+        if self.character.buffs[self.simfell_name] is not None:
+            self.character.buffs[self.simfell_name].reapply_buff()
+            return
+
         self.tick_rate = self.base_tick_rate / (
             1 + (self.character.get_haste() / 100)
         )
-        # Temporary testing against old.
-        # self.tick_rate = self.base_tick_rate
+
         self.time_to_next_tick = self.tick_rate
         self.remaining_time = self.duration
         self.character.buffs[self.simfell_name] = self
@@ -45,8 +50,28 @@ class BaseBuff(BaseSpell):
                 + f"✔️ Applied [dark_green]{self.name} "
                 + "(Buff)[/dark_green] to character."
             )
-        # TODO: Determine if there is a maximum buff/debuff count,
-        # and if re-casting it refreshes the duration.
+
+    def reapply_buff(self) -> None:
+        """Reapplies the buff to the target."""
+        if self.current_stacks < self.maximum_stacks:
+            self.current_stacks += 1
+
+        self.tick_rate = self.base_tick_rate / (
+            1 + (self.character.get_haste() / 100)
+        )
+
+        self.time_to_next_tick = self.tick_rate
+        self.remaining_time = self.duration
+        self.character.buffs[self.simfell_name] = self
+
+        self._is_active = True
+
+        if self.character.simulation.do_debug:
+            print(
+                f"Time {self.character.simulation.time:.2f}: "
+                + f"🔄 Re-Applied [dark_green]{self.name} "
+                + "(Buff)[/dark_green] to character."
+            )
 
     def update_remaining_duration(self, delta_time: float) -> None:
         """Decreases the remaining buff duration by the delta time."""
@@ -65,7 +90,7 @@ class BaseBuff(BaseSpell):
             if self.remaining_time <= 0 and self._is_active:
                 self.remove_buff()
 
-    def remove_buff(self) -> None:
+    def remove_buff(self, remove_all_stacks=True) -> None:
         """Removes the buff from the character."""
 
         self.remaining_time = 0

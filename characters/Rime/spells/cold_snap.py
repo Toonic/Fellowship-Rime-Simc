@@ -1,10 +1,13 @@
 from characters.rime import RimeSpell
 from characters.rime.talent import RimeTalents
+from characters.rime.buffs import GlacialAssault
 from .dance_of_swallows import DanceOfSwallows
 
 
 class ColdSnap(RimeSpell):
     """Cold Snap Spell"""
+
+    glacial_assault = GlacialAssault()
 
     def __init__(self):
         super().__init__(
@@ -15,8 +18,7 @@ class ColdSnap(RimeSpell):
         super().on_cast_complete()
 
         if RimeTalents.GLACIAL_ASSAULT.value.name in self.character.talents:
-            # self.character.buffs.
-            print("TODO: Add Glacial Assault.")
+            self.glacial_assault.apply_buff()
 
         # Trigger Dance of Swallows on cast if the buff is there.
         if (
