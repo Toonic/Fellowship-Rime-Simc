@@ -1,9 +1,7 @@
 """Module for the Rime Character."""
 
+from characters.rime import RimeSpell, RimeBuff, RimeDebuff
 from base import BaseCharacter
-from characters.rime.rime_spell import RimeSpell
-from characters.rime.rime_buff import RimeBuff
-from characters.rime.rime_debuff import RimeDebuff
 
 
 # Defines the Rime Character class.
