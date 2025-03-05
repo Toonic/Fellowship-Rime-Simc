@@ -1,11 +1,16 @@
 """Module for the Rime Character."""
 
-from characters.rime import RimeSpell, RimeBuff, RimeDebuff
 from characters.rime.spells import (
-    WrathOfWinter,
-    FrostBolt,
-    FreezingTorrent,
+    AnimaSpikes,
+    BurstingIce,
+    ColdSnap,
     DanceOfSwallows,
+    FreezingTorrent,
+    FrostBolt,
+    GlacialBlast,
+    IceBlitz,
+    IceComet,
+    WrathOfWinter,
 )
 from base import BaseCharacter
 
@@ -72,100 +77,3 @@ class Rime(BaseCharacter):
         self.winter_orbs -= amount
         if self.winter_orbs < 0:
             self.winter_orbs = 0
-
-
-class ColdSnap(RimeSpell):
-    """Cold Snap Spell"""
-
-    def __init__(self):
-        super().__init__(
-            "Cold Snap", damage_percent=204, winter_orb_cost=-1, cooldown=8
-        )
-
-    def on_cast_complete(self):
-        super().on_cast_complete()
-        if (
-            self.character.simulation.debuffs.get(
-                DanceOfSwallows().simfell_name
-            )
-            is not None
-        ):
-            # Dance of Swallows is hard coded to trigger 10 times from ColdSnap
-            for _ in range(10):
-                self.character.dance_of_swallows.damage()
-
-
-class BurstingIce(RimeDebuff):
-    """Bursting Ice Spell"""
-
-    def __init__(self):
-        super().__init__(
-            "Bursting Ice",
-            cast_time=2.0,
-            cooldown=15,
-            damage_percent=366,
-            anima_per_tick=1,
-            ticks=6,
-            duration=3,
-        )
-
-    def on_tick(self):
-        super().on_tick()
-        self.damage()
-        self.character.gain_anima(self.anima_per_tick)
-
-
-class GlacialBlast(RimeSpell):
-    """Glacial Blast Spell"""
-
-    def __init__(self):
-        super().__init__(
-            "Glacial Blast",
-            cast_time=2.0,
-            damage_percent=504,
-            winter_orb_cost=2,
-        )
-
-    def crit_chance_modifiers(self, crit_chance):
-        # TODO: Better handling of talents instead of string matching.
-        if "Glacial Assault" in self.character.talents:
-            crit_chance += 20
-        return crit_chance
-
-
-class IceComet(RimeSpell):
-    """Ice Comet Spell"""
-
-    def __init__(self):
-        super().__init__("Ice Comet", damage_percent=300, winter_orb_cost=3)
-
-
-class IceBlitz(RimeBuff):
-    """Ice Blitz Spell"""
-
-    ice_blitz_damage_multiplier = 0.15
-
-    def __init__(self):
-        super().__init__(
-            "Ice Blitz",
-            duration=20,
-            cooldown=120,
-            has_gcd=False,
-            can_cast_on_gcd=True,
-            can_cast_while_casting=True,
-        )
-
-    def apply_buff(self):
-        super().apply_buff()
-        self.character.damage_multiplier += self.ice_blitz_damage_multiplier
-
-    def remove_buff(self):
-        super().remove_buff()
-        self.character.damage_multiplier -= self.ice_blitz_damage_multiplier
-
-
-class AnimaSpikes(RimeSpell):
-    """Anima Spikes Spell"""
-
-    def __init__(self):
-        super().__init__("Anima Spikes", damage_percent=36)

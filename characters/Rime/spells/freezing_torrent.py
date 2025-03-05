@@ -1,5 +1,5 @@
 from rime import RimeSpell
-from .dance_of_swallows import DanceOfSwallows
+from characters.rime.spells import DanceOfSwallows
 
 
 class FreezingTorrent(RimeSpell):
