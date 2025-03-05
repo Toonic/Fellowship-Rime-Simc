@@ -75,5 +75,4 @@ class Rime(BaseCharacter):
     def lose_winter_orbs(self, amount):
         """Lose Winter Orbs"""
         self.winter_orbs -= amount
-        if self.winter_orbs < 0:
-            self.winter_orbs = 0
+        self.winter_orbs = max(self.winter_orbs, 0)

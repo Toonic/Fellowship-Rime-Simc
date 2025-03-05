@@ -1,3 +1,5 @@
+"""Module for Dance of Swallows Spell"""
+
 from characters.rime import RimeDebuff
 
 

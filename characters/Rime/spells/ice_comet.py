@@ -1,3 +1,5 @@
+"""Module for Ice Comet Spell"""
+
 from characters.rime import RimeSpell
 
 

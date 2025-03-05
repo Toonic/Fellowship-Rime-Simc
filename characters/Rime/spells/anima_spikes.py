@@ -1,3 +1,5 @@
+"""Module for Anima Spikes Spell"""
+
 from characters.rime import RimeSpell
 
 

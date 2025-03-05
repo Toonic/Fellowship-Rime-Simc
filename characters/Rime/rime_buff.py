@@ -1,3 +1,5 @@
+"""Module for Rime Buffs"""
+
 from base import BaseBuff
 
 

@@ -1,10 +1,11 @@
 """Models for the SimFell file."""
 
-from typing import Any, List, Optional, Type
+from typing import Any, List, Optional
 from pydantic import BaseModel
 
+from base import BaseCharacter
 from simfell_parser.enums import Gem, TierSet, Tier
-from simfell_parser.utils import CharacterType, map_character_name_to_class
+from simfell_parser.utils import CharacterTypeT, map_character_name_to_class
 
 
 class Condition(BaseModel):
@@ -84,7 +85,7 @@ class SimFellConfiguration(BaseModel):
     actions: List[Action]
     gear: Gear
 
-    _character: Optional[CharacterType] = None
+    _character: Optional[CharacterTypeT] = None
 
     @property
     def parsed_json(self) -> str:
@@ -93,7 +94,7 @@ class SimFellConfiguration(BaseModel):
         return self.model_dump_json(indent=2)
 
     @property
-    def character(self) -> Type[CharacterType]:
+    def character(self) -> BaseCharacter:
         """Return the character for the configuration."""
 
         if self._character is None:
@@ -109,5 +110,5 @@ class SimFellConfiguration(BaseModel):
         return self._character
 
     @character.setter
-    def character(self, value: CharacterType):
+    def character(self, value: BaseCharacter):
         self._character = value

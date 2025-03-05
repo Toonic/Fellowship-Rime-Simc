@@ -1,3 +1,5 @@
+"""Module for Wrath of Winter Spell"""
+
 from characters.rime import RimeBuff
 
 

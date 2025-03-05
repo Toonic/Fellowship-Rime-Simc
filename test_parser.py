@@ -2,7 +2,7 @@
 
 from simfell_parser.condition_parser import SimFileConditionParser
 from simfell_parser.simfile_parser import SimFileParser
-from simfell_parser.utils import SpellType
+from simfell_parser.utils import SpellTypeT
 
 
 parser = SimFileParser("test.simfell")
@@ -19,7 +19,7 @@ for action in configuration.actions:
 
     print(f"Action: '{action.name}', Conditions: {len(action.conditions)}")
 
-    spell: SpellType = configuration.character.spells.get(
+    spell: SpellTypeT = configuration.character.spells.get(
         action.name.split("/")[1], None
     )
     if not spell:

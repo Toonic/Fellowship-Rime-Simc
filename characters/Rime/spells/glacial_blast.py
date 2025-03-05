@@ -1,4 +1,7 @@
+"""Module for Glacial Blast Spell"""
+
 from characters.rime import RimeSpell
+from characters.rime.talent import RimeTalents
 
 
 class GlacialBlast(RimeSpell):
@@ -13,7 +16,6 @@ class GlacialBlast(RimeSpell):
         )
 
     def crit_chance_modifiers(self, crit_chance):
-        # TODO: Better handling of talents instead of string matching.
-        if "Glacial Assault" in self.character.talents:
+        if RimeTalents.GLACIAL_ASSAULT in self.character.talents:
             crit_chance += 20
         return crit_chance
