@@ -1,5 +1,5 @@
-from rime import RimeSpell
-from characters.rime.spells import DanceOfSwallows
+from characters.rime import RimeSpell
+from .dance_of_swallows import DanceOfSwallows
 
 
 class ColdSnap(RimeSpell):

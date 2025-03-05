@@ -1,4 +1,4 @@
-from rime import RimeSpell
+from characters.rime import RimeSpell
 
 
 class IceComet(RimeSpell):

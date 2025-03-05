@@ -1,4 +1,4 @@
-from rime import RimeBuff
+from characters.rime import RimeBuff
 
 
 class WrathOfWinter(RimeBuff):

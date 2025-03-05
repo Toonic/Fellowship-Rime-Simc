@@ -1,4 +1,4 @@
-from rime import RimeDebuff
+from characters.rime import RimeDebuff
 
 
 class BurstingIce(RimeDebuff):
