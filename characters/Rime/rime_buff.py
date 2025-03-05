@@ -1,8 +1,8 @@
-from base import BaseDebuff
+from base import BaseBuff
 
 
-class RimeDebuff(BaseDebuff):
-    """Base class for all Rime debuffs."""
+class RimeBuff(BaseBuff):
+    """Base class for all Rime buffs."""
 
     anima_gain = 0
     winter_orb_cost = 0
