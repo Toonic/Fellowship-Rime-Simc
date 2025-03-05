@@ -44,11 +44,11 @@ def handle_configuration(
 
     if arguments.enemy_count:
         configuration.enemies = arguments.enemy_count
-    elif arguments.talent_tree:
+    if arguments.talent_tree:
         configuration.talents = arguments.talent_tree
-    elif arguments.preset:
+    if arguments.preset:
         configuration.character = RimePreset[arguments.preset].value
-    elif arguments.custom_character:
+    if arguments.custom_character:
         try:
             stats = [
                 int(stat) for stat in arguments.custom_character.split("-")
@@ -78,9 +78,9 @@ def handle_configuration(
             haste=stats[3],
             spirit=stats[4],
         )
-    elif arguments.duration:
+    if arguments.duration:
         configuration.duration = arguments.duration
-    elif arguments.run_count:
+    if arguments.run_count:
         configuration.run_count = arguments.run_count
 
     return configuration
