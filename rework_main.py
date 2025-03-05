@@ -17,7 +17,7 @@ from rich.progress import (
 
 from characters.rime.rime import Rime
 from characters.rime.preset import RimePreset
-from characters.rime.talent import RimeTalent
+from characters.rime.talent import RimeTalents
 from simfell_parser.simfile_parser import SimFileParser, SimFellConfiguration
 from rework_sim import Simulation
 
@@ -107,7 +107,7 @@ def main(arguments: argparse.Namespace):
         talents = configuration.talents.split("-")
         for index, talent in enumerate(talents):
             for i in talent:
-                rime_talent = RimeTalent.get_by_identifier(f"{index+1}.{i}")
+                rime_talent = RimeTalents.get_by_identifier(f"{index+1}.{i}")
                 if rime_talent:
                     configuration.character.add_talent(rime_talent.value.name)
 
