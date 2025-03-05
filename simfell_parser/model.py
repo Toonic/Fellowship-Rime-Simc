@@ -3,6 +3,7 @@
 from typing import Any, List, Optional
 from pydantic import BaseModel
 
+from base import BaseCharacter
 from simfell_parser.enums import Gem, TierSet, Tier
 from simfell_parser.utils import CharacterTypeT, map_character_name_to_class
 
@@ -93,7 +94,7 @@ class SimFellConfiguration(BaseModel):
         return self.model_dump_json(indent=2)
 
     @property
-    def character(self) -> CharacterTypeT:
+    def character(self) -> BaseCharacter:
         """Return the character for the configuration."""
 
         if self._character is None:
@@ -109,5 +110,5 @@ class SimFellConfiguration(BaseModel):
         return self._character
 
     @character.setter
-    def character(self, value: CharacterTypeT):
+    def character(self, value: BaseCharacter):
         self._character = value

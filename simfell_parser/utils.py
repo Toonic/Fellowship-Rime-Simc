@@ -23,7 +23,8 @@ SpellTypeT = TypeVar("SpellTypeT", bound="BaseSpell")
 CharacterTypeT = TypeVar("CharacterTypeT", bound="BaseCharacter")
 
 
-def map_spell_name_to_class(spell_name: str) -> SpellTypeT:
+# NOTE: Not used anywhere atm.
+def map_spell_name_to_class(spell_name: str) -> "BaseSpell":
     """Map a spell name to a class."""
 
     class_name = spell_name.split("/")[1].split("_")
@@ -50,7 +51,7 @@ def map_spell_name_to_class(spell_name: str) -> SpellTypeT:
     return spell_class
 
 
-def map_character_name_to_class(character_name: str) -> CharacterTypeT:
+def map_character_name_to_class(character_name: str) -> "BaseCharacter":
     """Map a character name to a class."""
 
     class_name = character_name.capitalize()
