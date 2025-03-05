@@ -16,18 +16,6 @@ from rich.progress import (
 
 
 from characters.rime.rime import Rime
-
-# from characters.rime.rime import (
-#     WrathOfWinter,
-#     FrostBolt,
-#     IceBlitz,
-#     ColdSnap,
-#     DanceOfSwallows,
-#     FreezingTorrent,
-#     BurstingIce,
-#     GlacialBlast,
-#     # IceComet,
-# )
 from characters.rime.preset import RimePreset
 from characters.rime.talent import RimeTalent
 from simfell_parser.simfile_parser import SimFileParser, SimFellConfiguration
@@ -122,16 +110,6 @@ def main(arguments: argparse.Namespace):
                 rime_talent = RimeTalent.get_by_identifier(f"{index+1}.{i}")
                 if rime_talent:
                     configuration.character.add_talent(rime_talent.value.name)
-
-    # TODO: This should be a list of SimFell Actions.
-    # configuration.character.rotation.append(WrathOfWinter().simfell_name)
-    # configuration.character.rotation.append(IceBlitz().simfell_name)
-    # configuration.character.rotation.append(DanceOfSwallows().simfell_name)
-    # configuration.character.rotation.append(ColdSnap().simfell_name)
-    # configuration.character.rotation.append(BurstingIce().simfell_name)
-    # configuration.character.rotation.append(FreezingTorrent().simfell_name)
-    # configuration.character.rotation.append(GlacialBlast().simfell_name)
-    # configuration.character.rotation.append(FrostBolt().simfell_name)
 
     table.add_row(
         "Talent Tree",
