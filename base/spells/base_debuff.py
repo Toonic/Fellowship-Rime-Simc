@@ -1,3 +1,5 @@
+"""Base class for all debuffs."""
+
 from base import BaseSpell
 
 
@@ -31,7 +33,8 @@ class BaseDebuff(BaseSpell):
         self.tick_rate = self.base_tick_rate / (
             1 + (self.character.get_haste() / 100)
         )
-        # self.tick_rate = self.base_tick_rate  # Temporary testing against old.
+        # Temporary testing against old.
+        # self.tick_rate = self.base_tick_rate
         self.time_to_next_tick = self.tick_rate
         self.character.simulation.debuffs[self.simfell_name] = self
         self._is_active = True

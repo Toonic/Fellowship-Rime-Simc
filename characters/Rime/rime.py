@@ -3,7 +3,7 @@
 from base import BaseCharacter
 from base import BaseDebuff, BaseBuff
 
-# from rime_spell import RimeSpell
+from .rime_spell import RimeSpell
 
 
 # Defines the Rime Character class.
@@ -71,6 +71,8 @@ class Rime(BaseCharacter):
 
 
 class RimeDebuff(BaseDebuff):
+    """Base class for all Rime debuffs."""
+
     anima_gain = 0
     winter_orb_cost = 0
     anima_per_tick = 0
@@ -104,6 +106,8 @@ class RimeDebuff(BaseDebuff):
 
 
 class RimeBuff(BaseBuff):
+    """Base class for all Rime buffs."""
+
     anima_gain = 0
     winter_orb_cost = 0
     anima_per_tick = 0

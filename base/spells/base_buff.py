@@ -1,3 +1,5 @@
+"""Base class for all buffs."""
+
 from base import BaseSpell
 
 
@@ -27,7 +29,8 @@ class BaseBuff(BaseSpell):
         self.tick_rate = self.base_tick_rate / (
             1 + (self.character.get_haste() / 100)
         )
-        # self.tick_rate = self.base_tick_rate  # Temporary testing against old.
+        # Temporary testing against old.
+        # self.tick_rate = self.base_tick_rate
         self.time_to_next_tick = self.tick_rate
         self.remaining_time = self.duration
         self.character.buffs[self.simfell_name] = self

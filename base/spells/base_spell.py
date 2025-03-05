@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, final
 from rich import print  # pylint: disable=redefined-builtin
 
 if TYPE_CHECKING:
-    from ..character import BaseCharacter
+    from base.character import BaseCharacter
 
 
 class BaseSpell(ABC):

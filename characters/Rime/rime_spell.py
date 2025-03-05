@@ -1,3 +1,5 @@
+"""Module for Rime's spells."""
+
 from base import BaseSpell
 
 
