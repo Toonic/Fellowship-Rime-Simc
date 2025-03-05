@@ -1,3 +1,5 @@
+"""Module for Glacial Blast Spell"""
+
 from characters.rime import RimeSpell
 
 

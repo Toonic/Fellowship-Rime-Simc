@@ -1,3 +1,5 @@
+"""Module for Freezing Torrent Spell"""
+
 from characters.rime import RimeSpell
 from .dance_of_swallows import DanceOfSwallows
 

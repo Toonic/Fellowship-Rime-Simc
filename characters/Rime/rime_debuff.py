@@ -1,3 +1,5 @@
+"""Module for Rime Debuffs"""
+
 from base import BaseDebuff
 
 

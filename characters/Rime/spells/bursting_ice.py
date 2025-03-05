@@ -1,3 +1,5 @@
+"""Module for Bursting Ice Spell"""
+
 from characters.rime import RimeDebuff
 
 

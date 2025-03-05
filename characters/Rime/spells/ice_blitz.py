@@ -1,3 +1,5 @@
+"""Module for Ice Blitz Spell"""
+
 from characters.rime import RimeBuff
 
 

@@ -1,5 +1,6 @@
 from characters.rime import RimeSpell
 from characters.rime.talent import RimeTalents
+
 from .dance_of_swallows import DanceOfSwallows
 
 
