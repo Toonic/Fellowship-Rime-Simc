@@ -109,12 +109,17 @@ def main(arguments: argparse.Namespace):
             for i in talent:
                 rime_talent = RimeTalents.get_by_identifier(f"{index+1}.{i}")
                 if rime_talent:
-                    configuration.character.add_talent(rime_talent.value.name)
+                    configuration.character.add_talent(rime_talent)
 
     table.add_row(
         "Talent Tree",
         (
-            "\n".join(configuration.character.talents)
+            "\n".join(
+                [
+                    talent.value.name
+                    for talent in configuration.character.talents
+                ]
+            )
             if configuration.character.talents
             else "N/A"
         ),

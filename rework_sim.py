@@ -7,7 +7,7 @@ from rich import print  # pylint: disable=redefined-builtin
 from base.spells.base_debuff import BaseDebuff
 from simfell_parser.model import SimFellConfiguration
 from simfell_parser.condition_parser import SimFileConditionParser
-from simfell_parser.utils import SpellType
+from simfell_parser.utils import SpellTypeT
 
 
 class Simulation:
@@ -109,7 +109,7 @@ class Simulation:
                         + f"{len(action.conditions)}"
                     )
 
-                spell: SpellType = self.character.spells.get(
+                spell: SpellTypeT = self.character.spells.get(
                     action.name.split("/")[1], None
                 )
                 if not spell:

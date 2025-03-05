@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, TYPE_CHECKING, Optional
 
-# from enum import Enum
+from .talent import CharacterTypeT
 
 
 if TYPE_CHECKING:
@@ -35,7 +35,7 @@ class BaseCharacter(ABC):
         self.rotation: List[str] = []
 
         # All the talents.
-        self.talents: List[str] = []
+        self.talents: List[CharacterTypeT] = []
         # Buffs
         self.buffs: Dict[str, BaseBuff] = {}
         self.configure_spell_book()
@@ -58,7 +58,8 @@ class BaseCharacter(ABC):
     def calculate_stat_diminishing_returns(
         self, stat_points: int, base_percent=0
     ) -> float:
-        """Calculates total stat effect with diminishing returns applied correctly."""
+        """Calculates total stat effect with diminishing returns
+        applied correctly."""
 
         base_value = 0.21  # Base effectiveness per point (0.21%)
         breakpoints = [10, 15, 20, 25]  # Percent thresholds
@@ -124,7 +125,7 @@ class BaseCharacter(ABC):
         """Returns the character's damage multiplyer."""
         return 1 + self.damage_multiplier
 
-    def add_talent(self, talent: str) -> None:
+    def add_talent(self, talent: CharacterTypeT) -> None:
         """Adds a talent to the character's available talents."""
         self.talents.append(talent)
 

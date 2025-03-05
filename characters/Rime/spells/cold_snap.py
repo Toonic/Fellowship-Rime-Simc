@@ -15,7 +15,7 @@ class ColdSnap(RimeSpell):
     def on_cast_complete(self):
         super().on_cast_complete()
 
-        if RimeTalents.GLACIAL_ASSAULT.value.name in self.character.talents:
+        if RimeTalents.GLACIAL_ASSAULT in self.character.talents:
             # self.character.buffs.
             print("TODO: Add Glacial Assault.")
 

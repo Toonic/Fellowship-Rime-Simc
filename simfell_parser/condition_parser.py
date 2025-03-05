@@ -1,12 +1,12 @@
 """Module for parsing SimFell condition lines."""
 
-from typing import Any, List, Type
+from typing import Any, List
 import operator
 import re
 from rich import print  # pylint: disable=redefined-builtin
 
 from simfell_parser.model import Condition
-from simfell_parser.utils import CharacterType
+from simfell_parser.utils import CharacterTypeT
 
 
 class SimFileConditionParser:
@@ -108,7 +108,7 @@ class SimFileConditionParser:
 
     @staticmethod
     def evaluate_character(
-        conditions: List[Condition], character: Type[CharacterType]
+        conditions: List[Condition], character: CharacterTypeT
     ) -> bool:
         """Map a condition to a character attribute."""
 
@@ -143,7 +143,7 @@ class SimFileConditionParser:
     @staticmethod
     def evaluate_spell(
         conditions: List[Condition],
-        character: CharacterType,
+        character: CharacterTypeT,
     ) -> bool:
         """Map a condition to a spell attribute."""
 
