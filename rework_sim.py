@@ -1,10 +1,13 @@
 """Module for the Simulation class."""
 
 from typing import Dict
-from base.spell import BaseDebuff
-from base.character import BaseCharacter
-
+from copy import deepcopy
 from rich import print  # pylint: disable=redefined-builtin
+
+from base.spell import BaseDebuff
+from simfell_parser.model import SimFellConfiguration
+from simfell_parser.condition_parser import SimFileConditionParser
+from simfell_parser.utils import SpellType
 
 
 class Simulation:
@@ -12,18 +15,16 @@ class Simulation:
 
     def __init__(
         self,
-        character: BaseCharacter,
-        duration=180,
-        enemy_count=1,
+        configuration: SimFellConfiguration,
         do_debug=False,
         is_deterministic=False,
     ):
         """Initialize the Simulation."""
 
-        self.character = character
-        character.set_simulation(self)
-        self.duration = duration
-        self.enemy_count = enemy_count
+        self.character = deepcopy(configuration.character)
+        self.character.set_simulation(self)
+        self.duration = configuration.duration
+        self.enemy_count = configuration.enemies
         self.do_debug = do_debug
         self.time = 0
         self.gcd = 0
@@ -32,6 +33,8 @@ class Simulation:
         self.damage = 0
         self.damage_table = {}
         self.is_deterministic = is_deterministic
+
+        self.configuration = configuration
 
         if self.is_deterministic:
             self.character._crit = 0
@@ -73,7 +76,7 @@ class Simulation:
 
             debuff.update_remaining_duration(delta_time)
 
-    def run(self):
+    def run(self, detailed_debug=False):
         """Run the simulation."""
 
         while self.time <= self.duration:
@@ -85,22 +88,66 @@ class Simulation:
                     )
                 self.update_time(self.gcd)
 
-            for spell in self.character.rotation:
-                if self.character.spells[spell].is_ready():
-                    if self.do_debug:
-                        spell_name = self.character.spells[spell].name
-                        print(
-                            f"Time {self.time:.2f}: "
-                            + f"🔮 Casting [cornflower_blue]{spell_name}"
-                            + "[/cornflower_blue]. "
-                        )
-                    self.character.spells[spell].cast()
+            # for spell in self.character.rotation:
+            #     if self.character.spells[spell].is_ready():
+            #         if self.do_debug:
+            #             spell_name = self.character.spells[spell].name
+            #             print(
+            #                 f"Time {self.time:.2f}: "
+            #                 + f"🔮 Casting [cornflower_blue]{spell_name}"
+            #                 + "[/cornflower_blue]. "
+            #             )
+            #         self.character.spells[spell].cast()
+            #         break
+
+            for action in self.configuration.actions:
+                if self.do_debug and detailed_debug:
+                    print(
+                        "[grey37]--------------------------[/grey37]"
+                        + f"\nAction: [dark_magenta]'{action.name}'"
+                        + "[/dark_magenta], Conditions: "
+                        + f"{len(action.conditions)}"
+                    )
+
+                spell: SpellType = self.character.spells.get(
+                    action.name.split("/")[1], None
+                )
+                if not spell:
+                    print(
+                        f"Spell [cornflower_blue]'{action.name}'"
+                        + "[/cornflower_blue] not found in character spells"
+                    )
+                    continue
+
+                character_check = SimFileConditionParser.evaluate_character(
+                    action.conditions, self.character
+                )
+                spell_check = SimFileConditionParser.evaluate_spell(
+                    action.conditions,
+                    self.character,
+                )
+
+                is_spell_ready = spell.is_ready()
+
+                if self.do_debug and detailed_debug:
+                    print(f"\tCharacter Result: {character_check}")
+                    print(f"\tSpell Result: {spell_check}")
+                    print(f"\tSpell Ready: {is_spell_ready}")
+                    print("\t=====================\n")
+
+                if all([is_spell_ready, character_check, spell_check]):
+                    print(
+                        f"Time {self.time:.2f}: "
+                        + f"🔮 Casting [cornflower_blue]{spell.name}"
+                        + "[/cornflower_blue]"
+                    )
+                    spell.cast()
                     break
             else:
                 if self.do_debug:
                     print(
                         f"Time {self.time:.2f}: No Spell Ready"
-                        + " | Updating time by 0.1"
+                        + " | [grey37]Updating time by 0.1"
                     )
                 self.update_time(0.1)
 

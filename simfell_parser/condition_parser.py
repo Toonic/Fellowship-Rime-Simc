@@ -1,6 +1,6 @@
 """Module for parsing SimFell condition lines."""
 
-from typing import Any, List
+from typing import Any, List, Type
 import operator
 import re
 
@@ -107,7 +107,7 @@ class SimFileConditionParser:
 
     @staticmethod
     def evaluate_character(
-        conditions: List[Condition], character: CharacterType
+        conditions: List[Condition], character: Type[CharacterType]
     ) -> bool:
         """Map a condition to a character attribute."""
 

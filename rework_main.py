@@ -1,8 +1,7 @@
 """Main file for the rework sim."""
 
 import argparse
-from typing import Optional, Tuple
-from copy import deepcopy
+from typing import Optional
 from rich import box
 from rich.console import Console
 from rich.table import Table
@@ -17,120 +16,80 @@ from rich.progress import (
 
 
 from characters.Rime import Rime
-from characters.Rime.rime import (
-    WrathOfWinter,
-    FrostBolt,
-    IceBlitz,
-    ColdSnap,
-    DanceOfSwallows,
-    FreezingTorrent,
-    BurstingIce,
-    GlacialBlast,
-    # IceComet,
-)
+
+# from characters.Rime.rime import (
+#     WrathOfWinter,
+#     FrostBolt,
+#     IceBlitz,
+#     ColdSnap,
+#     DanceOfSwallows,
+#     FreezingTorrent,
+#     BurstingIce,
+#     GlacialBlast,
+#     # IceComet,
+# )
 from characters.Rime.preset import RimePreset
 from characters.Rime.talent import RimeTalent
 from simfell_parser.simfile_parser import SimFileParser, SimFellConfiguration
-from simfell_parser.model import Gear
 from rework_sim import Simulation
 
 
 def handle_configuration(
     arguments: argparse.Namespace,
-) -> Tuple[SimFellConfiguration, Rime]:
+) -> SimFellConfiguration:
     """Handles the configuration based on the arguments."""
 
-    checked_arguments = [
-        arguments.preset,
-        arguments.custom_character,
-        arguments.talent_tree,
-        arguments.enemy_count,
-    ]
+    simfile_parser = SimFileParser(arguments.simfile)
+    configuration = simfile_parser.parse()
 
-    if arguments.simfile and any(checked_arguments):
-        raise ValueError(
-            "Cannot provide both SimFile configuration and custom. "
-            + "Please provide only one."
-        )
-    if not arguments.simfile and not any(checked_arguments):
-        raise ValueError(
-            "Must provide either a preset or a SimFell file. "
-            + "Please provide one."
-        )
+    if arguments.enemy_count:
+        configuration.enemies = arguments.enemy_count
+    elif arguments.talent_tree:
+        configuration.talents = arguments.talent_tree
+    elif arguments.preset:
+        configuration.character = RimePreset[arguments.preset].value
+    elif arguments.custom_character:
+        try:
+            stats = [
+                int(stat) for stat in arguments.custom_character.split("-")
+            ]
+        except ValueError as e:
+            raise ValueError(
+                "Custom character must be formatted as "
+                + "intellect-crit-expertise-haste-spirit"
+            ) from e
 
-    # Parse the simfile if provided.
-    if arguments.simfile:
-        simfile_parser = SimFileParser(arguments.simfile)
-        configuration = simfile_parser.parse()
-        character = Rime(
-            intellect=configuration.intellect,
-            crit=configuration.crit,
-            expertise=configuration.expertise,
-            haste=configuration.haste,
-            spirit=configuration.spirit,
-        )
-    else:
-        if arguments.custom_character:
-            try:
-                stats = [
-                    int(stat) for stat in arguments.custom_character.split("-")
-                ]
-            except ValueError as e:
-                raise ValueError(
-                    "Custom character must be formatted as "
-                    + "intellect-crit-expertise-haste-spirit"
-                ) from e
-
-            if len(stats) != 5:
-                raise ValueError(
-                    "Custom character must be formatted as "
-                    + "intellect-crit-expertise-haste-spirit"
-                )
-            for stat in stats:
-                if stat < 0:
-                    raise ValueError(
-                        "All stats must be positive integers. "
-                        + f"Invalid stat: {stat}"
-                    )
-
-            character = Rime(
-                intellect=stats[0],
-                crit=stats[1],
-                expertise=stats[2],
-                haste=stats[3],
-                spirit=stats[4],
+        if len(stats) != 5:
+            raise ValueError(
+                "Custom character must be formatted as "
+                + "intellect-crit-expertise-haste-spirit"
             )
-        elif arguments.preset:
-            # Use preset if provided.
-            character = RimePreset[arguments.preset].value
-        else:
-            character = RimePreset.DEFAULT.value
+        for stat in stats:
+            if stat < 0:
+                raise ValueError(
+                    "All stats must be positive integers. "
+                    + f"Invalid stat: {stat}"
+                )
 
-        configuration = SimFellConfiguration(
-            name="Custom Configuration",
-            hero="Rime",
-            intellect=character.get_main_stat(),
-            crit=character.get_crit(),
-            expertise=character.get_expertise(),
-            haste=character.get_haste(),
-            spirit=character.get_spirit(),
-            enemies=arguments.enemy_count,
-            duration=arguments.duration,
-            talents=arguments.talent_tree,
-            run_count=arguments.run_count,
-            trinket1=None,
-            trinket2=None,
-            actions=[],
-            gear=Gear(helmet=None, shoulder=None),
+        configuration.character = Rime(
+            intellect=stats[0],
+            crit=stats[1],
+            expertise=stats[2],
+            haste=stats[3],
+            spirit=stats[4],
         )
+    elif arguments.duration:
+        configuration.duration = arguments.duration
+    elif arguments.run_count:
+        configuration.run_count = arguments.run_count
 
-    return configuration, character
+    return configuration
 
 
 def main(arguments: argparse.Namespace):
     """Main function."""
 
-    configuration, character = handle_configuration(arguments)
+    configuration = handle_configuration(arguments)
 
     print()
 
@@ -162,21 +121,25 @@ def main(arguments: argparse.Namespace):
             for i in talent:
                 rime_talent = RimeTalent.get_by_identifier(f"{index+1}.{i}")
                 if rime_talent:
-                    character.add_talent(rime_talent.value.name)
+                    configuration.character.add_talent(rime_talent.value.name)
 
     # TODO: This should be a list of SimFell Actions.
-    character.rotation.append(WrathOfWinter().simfell_name)
-    character.rotation.append(IceBlitz().simfell_name)
-    character.rotation.append(DanceOfSwallows().simfell_name)
-    character.rotation.append(ColdSnap().simfell_name)
-    character.rotation.append(BurstingIce().simfell_name)
-    character.rotation.append(FreezingTorrent().simfell_name)
-    character.rotation.append(GlacialBlast().simfell_name)
-    character.rotation.append(FrostBolt().simfell_name)
+    # configuration.character.rotation.append(WrathOfWinter().simfell_name)
+    # configuration.character.rotation.append(IceBlitz().simfell_name)
+    # configuration.character.rotation.append(DanceOfSwallows().simfell_name)
+    # configuration.character.rotation.append(ColdSnap().simfell_name)
+    # configuration.character.rotation.append(BurstingIce().simfell_name)
+    # configuration.character.rotation.append(FreezingTorrent().simfell_name)
+    # configuration.character.rotation.append(GlacialBlast().simfell_name)
+    # configuration.character.rotation.append(FrostBolt().simfell_name)
 
     table.add_row(
         "Talent Tree",
-        "\n".join(character.talents) if character.talents else "N/A",
+        (
+            "\n".join(configuration.character.talents)
+            if configuration.character.talents
+            else "N/A"
+        ),
         end_section=True,
     )
     table.add_row(
@@ -185,11 +148,19 @@ def main(arguments: argparse.Namespace):
             "\n".join(
                 f"{key}: {value}"
                 for key, value in {
-                    "int": character.get_main_stat(),
-                    "crit": f"{round(character.get_crit(), 2)}%",
-                    "exp": f"{round(character.get_expertise(), 2)}%",
-                    "haste": f"{round(character.get_haste(), 2)}%",
-                    "spirit": f"{round(character.get_spirit(), 2)}%",
+                    "int": configuration.character.get_main_stat(),
+                    "crit": (
+                        f"{round(configuration.character.get_crit(), 2)}%"
+                    ),
+                    "exp": (
+                        f"{round(configuration.character.get_expertise(), 2)}%"
+                    ),
+                    "haste": (
+                        f"{round(configuration.character.get_haste(), 2)}%"
+                    ),
+                    "spirit": (
+                        f"{round(configuration.character.get_spirit(), 2)}%"
+                    ),
                 }.items()
             )
         ),
@@ -201,10 +172,7 @@ def main(arguments: argparse.Namespace):
         case "average_dps":
             average_dps(
                 table,
-                character,
-                configuration.duration,
-                configuration.run_count,
-                configuration.enemies,
+                configuration,
                 arguments.experimental_feature,
             )
         case "stat_weights":
@@ -221,9 +189,7 @@ def main(arguments: argparse.Namespace):
         case "debug_sim":
             debug_sim(
                 table,
-                character,
-                configuration.duration,
-                configuration.enemies,
+                configuration,
             )
 
     # Print the final results
@@ -231,31 +197,24 @@ def main(arguments: argparse.Namespace):
     console.print(table)
 
 
-def debug_sim(
-    table: Table, character: Rime, duration: int, enemy_count: int
-) -> None:
+def debug_sim(table: Table, configuration: SimFellConfiguration) -> None:
     """Runs a debug simulation.
     Creates a deterministic simulation with 0 crit and spirit.
     """
 
     sim = Simulation(
-        character,
-        duration=duration,
-        enemy_count=enemy_count,
+        configuration,
         do_debug=True,
         is_deterministic=True,
     )
-    dps = sim.run()
+    dps = sim.run(detailed_debug=True)
 
     table.add_row("Total DPS", f"[bold magenta]{dps:.2f}", end_section=True)
 
 
 def average_dps(
     table: Table,
-    character: Rime,
-    duration: int,
-    run_count: int,
-    enemy_count: int,
+    configuration: SimFellConfiguration,
     use_experimental: bool,
     stat_name: Optional[str] = None,
 ) -> float:
@@ -277,14 +236,11 @@ def average_dps(
         dps_lowest = float("inf")
         dps_highest = float("-inf")
 
-        task = progress.add_task(f"{stat_name}", total=run_count)
+        task = progress.add_task(f"{stat_name}", total=configuration.run_count)
 
-        for _ in range(run_count):
-            character_copy = deepcopy(character)
+        for _ in range(configuration.run_count):
             sim = Simulation(
-                character_copy,
-                duration=duration,
-                enemy_count=enemy_count,
+                configuration,
                 do_debug=False,
                 is_deterministic=False,
             )
@@ -296,7 +252,7 @@ def average_dps(
             dps_highest = max(dps, dps_highest)
 
             dps_running_total += dps
-        avg_dps = dps_running_total / run_count
+        avg_dps = dps_running_total / configuration.run_count
 
     table.add_row(
         "Average DPS" if not stat_name else f"Average DPS ({stat_name})",
@@ -396,14 +352,12 @@ if __name__ == "__main__":
         "-d",
         "--duration",
         type=int,
-        default=120,
         help="Duration of the simulation.",
     )
     parser.add_argument(
         "-r",
         "--run-count",
         type=int,
-        default=2000,
         help="Number of runs to average DPS.",
     )
     parser.add_argument(
@@ -423,7 +377,7 @@ if __name__ == "__main__":
         "-f",
         "--simfile",
         type=str,
-        default="",
+        default="test.simfell",
         help="Path to the SimFell file.",
     )
 

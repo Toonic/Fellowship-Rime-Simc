@@ -1,6 +1,6 @@
 """Utility functions for the simfell_parser module."""
 
-from typing import TypeVar, TYPE_CHECKING, Optional
+from typing import TypeVar, TYPE_CHECKING, Optional, Type, Dict
 
 from characters.Rime.rime import (
     WrathOfWinter,
@@ -23,14 +23,14 @@ SpellType = TypeVar("SpellType", bound="BaseSpell")
 CharacterType = TypeVar("CharacterType", bound="BaseCharacter")
 
 
-def map_spell_name_to_class(spell_name: str) -> SpellType:
+def map_spell_name_to_class(spell_name: str) -> Type[SpellType]:
     """Map a spell name to a class."""
 
     class_name = spell_name.split("/")[1].split("_")
     class_name = "".join([word.capitalize() for word in class_name])
 
     # Dictionary to map class names to their corresponding classes
-    spell_classes = {
+    spell_classes: Dict[str, Type["BaseSpell"]] = {
         "WrathOfWinter": WrathOfWinter,
         "FrostBolt": FrostBolt,
         "ColdSnap": ColdSnap,
@@ -50,13 +50,13 @@ def map_spell_name_to_class(spell_name: str) -> SpellType:
     return spell_class
 
 
-def map_character_name_to_class(character_name: str) -> CharacterType:
+def map_character_name_to_class(character_name: str) -> Type[CharacterType]:
     """Map a character name to a class."""
 
     class_name = character_name.capitalize()
 
     # Dictionary to map class names to their corresponding classes
-    character_classes = {
+    character_classes: Dict[str, Type["BaseCharacter"]] = {
         "Rime": Rime,
     }
 
