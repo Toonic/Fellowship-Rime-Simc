@@ -2,7 +2,7 @@
 
 from typing import TypeVar, TYPE_CHECKING, Optional, Type, Dict
 
-from characters.Rime.rime import (
+from characters.rime.rime import (
     WrathOfWinter,
     FrostBolt,
     ColdSnap,
