@@ -2,7 +2,7 @@
 
 from enum import Enum
 
-from characters.rime import Rime
+from characters.rime.rime import Rime
 
 
 class RimePreset(Enum):
