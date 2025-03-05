@@ -22,10 +22,10 @@ class BaseCharacter(ABC):
         # Main Stat Conversion - Points to % including DR.
         self._main_stat = main_stat
         # Crit has a base of 5%.
-        self._crit = (crit * self.percent_per_point) + 5
-        self._expertise = expertise * self.percent_per_point
-        self._haste = haste * self.percent_per_point
-        self._spirit = spirit * self.percent_per_point
+        self._crit = self.calculate_stat_diminishing_returns(crit, 5)
+        self._expertise = self.calculate_stat_diminishing_returns(expertise)
+        self._haste = self.calculate_stat_diminishing_returns(haste)
+        self._spirit = self.calculate_stat_diminishing_returns(spirit)
 
         # This will hold the character's available spells.
         self.spells: Dict[str, BaseSpell] = {}
@@ -54,6 +54,39 @@ class BaseCharacter(ABC):
         self.haste_additional = 0
         self.spirit_multiplier = 0
         self.spirit_additional = 0
+
+    def calculate_stat_diminishing_returns(
+        self, stat_points: int, base_percent=0
+    ) -> float:
+        """Calculates total stat effect with diminishing returns applied correctly."""
+
+        base_value = 0.21  # Base effectiveness per point (0.21%)
+        breakpoints = [10, 15, 20, 25]  # Percent thresholds
+        multipliers = [1.0, 0.9, 0.8, 0.7, 0.6]  # Multipliers for each stage
+
+        total_effect = base_percent  # Accumulated percentage
+        used_points = 0  # Points already spent
+
+        for i, threshold in enumerate(
+            breakpoints + [float("inf")]
+        ):  # Include final tier
+            if used_points >= stat_points:
+                break
+
+            # Remaining percentage needed to reach the next threshold
+            required_percentage = threshold - total_effect
+            points_to_threshold = (
+                required_percentage / base_value
+            )  # Convert % to points
+
+            # Points available in this tier
+            points_used = min(stat_points - used_points, points_to_threshold)
+
+            # Apply the appropriate multiplier for this tier
+            total_effect += points_used * base_value * multipliers[i]
+            used_points += points_used  # Update total points used
+
+        return total_effect
 
     def set_simulation(self, simulation: "Simulation") -> None:
         """Sets the simulation for the character."""
