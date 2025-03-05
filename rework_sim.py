@@ -4,7 +4,7 @@ from typing import Dict
 from copy import deepcopy
 from rich import print  # pylint: disable=redefined-builtin
 
-from base.spell import BaseDebuff
+from base.spells.base_debuff import BaseDebuff
 from simfell_parser.model import SimFellConfiguration
 from simfell_parser.condition_parser import SimFileConditionParser
 from simfell_parser.utils import SpellType

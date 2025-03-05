@@ -7,8 +7,8 @@ from typing import Dict, List, TYPE_CHECKING, Optional
 
 
 if TYPE_CHECKING:
-    from spell import BaseSpell
-    from spell import BaseBuff
+    from base.spells.base_spell import BaseSpell
+    from base.spells.base_spell import BaseBuff
     from rework_sim import Simulation
 
 

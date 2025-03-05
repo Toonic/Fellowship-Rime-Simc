@@ -15,7 +15,7 @@ from rich.progress import (
 )
 
 
-from characters.Rime import Rime
+from characters.rime import Rime
 
 # from characters.Rime.rime import (
 #     WrathOfWinter,
@@ -28,8 +28,8 @@ from characters.Rime import Rime
 #     GlacialBlast,
 #     # IceComet,
 # )
-from characters.Rime.preset import RimePreset
-from characters.Rime.talent import RimeTalent
+from characters.rime.preset import RimePreset
+from characters.rime.talent import RimeTalent
 from simfell_parser.simfile_parser import SimFileParser, SimFellConfiguration
 from rework_sim import Simulation
 
