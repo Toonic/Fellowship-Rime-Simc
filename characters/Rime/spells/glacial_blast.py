@@ -16,21 +16,22 @@ class GlacialBlast(RimeSpell):
             winter_orb_cost=2,
         )
 
-    def is_ready(self):
-        glacial_assault = GlacialAssault()
-        if (
-            RimeTalents.GLACIAL_ASSAULT in self.character.talents
-            and glacial_assault.simfell_name in self.character.buffs
-        ):
-            previous_cast_time = self.cast_time
-            if (
-                self.character.buffs[glacial_assault].current_stacks
-                == self.character.buffs[glacial_assault].maximum_stacks
-            ):
-                self.cast_time = 0
-            else:
-                # self.cast_time = 2  # I don't like this.
-                self.cast_time = previous_cast_time
+    # def is_ready(self):
+    #     su
+    #     glacial_assault = GlacialAssault()
+    #     if (
+    #         RimeTalents.GLACIAL_ASSAULT in self.character.talents
+    #         and glacial_assault.simfell_name in self.character.buffs
+    #     ):
+    #         previous_cast_time = self.cast_time
+    #         if (
+    #             self.character.buffs[glacial_assault].current_stacks
+    #             == self.character.buffs[glacial_assault].maximum_stacks
+    #         ):
+    #             self.cast_time = 0
+    #         else:
+    #             # self.cast_time = 2  # I don't like this.
+    #             self.cast_time = previous_cast_time
 
     def crit_chance_modifiers(self, crit_chance):
         if RimeTalents.GLACIAL_ASSAULT in self.character.talents:
