@@ -3,6 +3,7 @@
 from rich import print  # pylint: disable=redefined-builtin
 
 from base import BaseSpell
+from base import BaseCharacter
 
 
 class BaseDebuff(BaseSpell):
@@ -26,9 +27,9 @@ class BaseDebuff(BaseSpell):
         super().on_cast_complete()
         self.apply_debuff()
 
-    def apply(self) -> None:
+    def apply(self, character: "BaseCharacter") -> None:
         """Applies the debuff to the target."""
-
+        self.character = character
         # Fellowship for some reason has an additional 0.15 Seconds
         # for debuffs. WHY?!
         self.remaining_time = self.duration + 0.15

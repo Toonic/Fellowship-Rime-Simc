@@ -53,6 +53,5 @@ class GlacialBlast(RimeSpell):
                         GlacialAssaultBuff()
                     ).maximum_stacks
                 ):
-                    print("Glacial BOOM")
                     return True
         return False

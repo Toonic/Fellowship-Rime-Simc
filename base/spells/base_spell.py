@@ -175,6 +175,5 @@ class BaseSpell(ABC):
             self.buff.apply(self.character)
 
     def apply_debuff(self):
-        #! not working yet.
         if self.debuff is not None:
-            self.debuff.apply(self.character.simulation)
+            self.debuff.apply(self.character)
