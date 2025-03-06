@@ -15,13 +15,12 @@ class ColdSnap(RimeSpell):
         super().__init__(
             "Cold Snap", damage_percent=204, winter_orb_cost=-1, cooldown=8
         )
-        self.glacial_assault.character = self.character
 
         self._dance_of_swallows_trigger_count = 10
 
     def on_cast_complete(self):
         super().on_cast_complete()
-
+        self.glacial_assault.character = self.character
         if RimeTalents.GLACIAL_ASSAULT in self.character.talents:
             self.glacial_assault.apply_buff()
 
