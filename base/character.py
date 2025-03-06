@@ -8,7 +8,7 @@ from .talent import CharacterTalentT
 
 if TYPE_CHECKING:
     from base.spells.base_spell import BaseSpell
-    from base.spells.base_spell import BaseBuff
+    from base.spells.base_buff import BaseBuff
     from rework_sim import Simulation
 
 
@@ -28,7 +28,7 @@ class BaseCharacter(ABC):
         self._spirit = self.calculate_stat_diminishing_returns(spirit)
 
         # This will hold the character's available spells.
-        self.spells: Dict[str, BaseSpell] = {}
+        self.spells: Dict[str, "BaseSpell"] = {}
 
         # This will hold the character's rotation.
         # TODO: Change this to an object reference of SimFell Action?
@@ -37,7 +37,7 @@ class BaseCharacter(ABC):
         # All the talents.
         self.talents: List[CharacterTalentT] = []
         # Buffs
-        self.buffs: Dict[str, BaseBuff] = {}
+        self.buffs: Dict[str, "BaseBuff"] = {}
         self.configure_spell_book()
         self.simulation: Optional["Simulation"] = None
 

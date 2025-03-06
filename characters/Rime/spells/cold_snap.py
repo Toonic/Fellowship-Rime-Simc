@@ -1,3 +1,5 @@
+"""Module for Cold Snap Spell"""
+
 from characters.rime import RimeSpell
 from characters.rime.talent import RimeTalents
 from characters.rime.buffs import GlacialAssault
@@ -15,6 +17,8 @@ class ColdSnap(RimeSpell):
         )
         self.glacial_assault.character = self.character
 
+        self._dance_of_swallows_trigger_count = 10
+
     def on_cast_complete(self):
         super().on_cast_complete()
 
@@ -29,5 +33,11 @@ class ColdSnap(RimeSpell):
             is not None
         ):
             # Dance of Swallows is hard coded to trigger 10 times from ColdSnap
-            for _ in range(10):
+
+            # Mel's NOTE: The why dont you code it to the attribute?
+            # E.g.: self.dance_of_swallows_trigger_count = 10
+            # OR we would store trigger counts for each spell in the
+            # Dance of Swallows class, since there may be more variance.
+            # -> Decide!!
+            for _ in range(self._dance_of_swallows_trigger_count):
                 self.character.dance_of_swallows.damage()

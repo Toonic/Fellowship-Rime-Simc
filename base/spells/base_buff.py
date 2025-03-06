@@ -30,7 +30,7 @@ class BaseBuff(BaseSpell):
 
     def apply_buff(self) -> None:
         """Applies the debuff to the target."""
-        if self.character.buffs[self.simfell_name] is not None:
+        if self.simfell_name in self.character.buffs:
             self.character.buffs[self.simfell_name].reapply_buff()
             return
 
