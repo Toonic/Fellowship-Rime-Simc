@@ -21,12 +21,6 @@ from base import BaseCharacter
 class Rime(BaseCharacter):
     """Stat Point DR"""
 
-    main_stat_per_point = 1
-    critPerPoint = 0.21
-    expertisePerPoint = 0.21
-    hastePerPoint = 0.21
-    spiritPerPoint = 0.21
-
     anima_spikes = None
     anima = 0
     winter_orbs = 0
@@ -80,5 +74,6 @@ class Rime(BaseCharacter):
 
     def lose_winter_orbs(self, amount):
         """Lose Winter Orbs"""
+        # TODO: Spirit Gamba on Orbs.
         self.winter_orbs -= amount
         self.winter_orbs = max(self.winter_orbs, 0)

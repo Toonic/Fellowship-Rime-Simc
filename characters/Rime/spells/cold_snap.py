@@ -3,7 +3,7 @@
 from characters.rime import RimeSpell
 from characters.rime.talent import RimeTalents
 from characters.rime.buffs import GlacialAssaultBuff
-from .dance_of_swallows import DanceOfSwallows
+from characters.rime.debuffs import DanceOfSwallowsDebuff
 
 
 class ColdSnap(RimeSpell):
@@ -24,12 +24,11 @@ class ColdSnap(RimeSpell):
         super().on_cast_complete()
 
         # Trigger Dance of Swallows on cast if the buff is there.
-        if (
-            self.character.simulation.debuffs.get(
-                DanceOfSwallows().simfell_name
-            )
-            is not None
-        ):
+        dance_of_swallows = self.character.simulation.get_debuff(
+            DanceOfSwallowsDebuff()
+        )
+
+        if dance_of_swallows is not None:
             # Dance of Swallows is hard coded to trigger 10 times from ColdSnap
             for _ in range(self._dance_of_swallows_trigger_count):
-                self.character.dance_of_swallows.damage()
+                dance_of_swallows.damage()

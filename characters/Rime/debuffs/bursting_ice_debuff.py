@@ -4,9 +4,6 @@ from characters.rime import RimeDebuff
 class BurstingIceDebuff(RimeDebuff):
     """Glacial Assault buff."""
 
-    haste_additional_bonus = 30
-    damage_multiplier_bonus = 0.15
-
     def __init__(self):
         super().__init__(
             "Bursting Ice",

@@ -175,5 +175,6 @@ class BaseSpell(ABC):
             self.buff.apply(self.character)
 
     def apply_debuff(self):
+        """Applies the associated debuff to the enemy."""
         if self.debuff is not None:
             self.debuff.apply(self.character)

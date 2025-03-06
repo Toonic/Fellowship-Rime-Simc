@@ -139,7 +139,9 @@ class BaseCharacter(ABC):
 
     def get_buff(self, buff: "BaseBuff") -> "BaseBuff":
         """Returns the current Buff."""
-        return self.buffs[buff.simfell_name]
+        if buff.simfell_name in self.buffs:
+            return self.buffs[buff.simfell_name]
+        return None
 
     @abstractmethod
     def configure_spell_book(self) -> None:

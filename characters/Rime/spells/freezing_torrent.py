@@ -1,7 +1,7 @@
 """Module for Freezing Torrent Spell"""
 
 from characters.rime import RimeSpell
-from .dance_of_swallows import DanceOfSwallows
+from characters.rime.debuffs import DanceOfSwallowsDebuff
 
 
 class FreezingTorrent(RimeSpell):
@@ -24,10 +24,10 @@ class FreezingTorrent(RimeSpell):
 
     def on_tick(self):
         self.character.gain_anima(self.anima_per_tick)
-        if (
-            self.character.simulation.debuffs.get(
-                DanceOfSwallows().simfell_name
-            )
-            is not None
-        ):
-            self.character.dance_of_swallows.damage()
+
+        dance_of_swallows = self.character.simulation.get_debuff(
+            DanceOfSwallowsDebuff()
+        )
+
+        if dance_of_swallows is not None:
+            dance_of_swallows.damage()
