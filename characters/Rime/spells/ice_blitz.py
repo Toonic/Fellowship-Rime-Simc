@@ -1,9 +1,10 @@
 """Module for Ice Blitz Spell"""
 
-from characters.rime import RimeBuff
+from characters.rime import RimeSpell
+from characters.rime.buffs import IceBlitzBuff
 
 
-class IceBlitz(RimeBuff):
+class IceBlitz(RimeSpell):
     """Ice Blitz Spell"""
 
     ice_blitz_damage_multiplier = 0.15
@@ -11,17 +12,9 @@ class IceBlitz(RimeBuff):
     def __init__(self):
         super().__init__(
             "Ice Blitz",
-            duration=20,
             cooldown=120,
             has_gcd=False,
             can_cast_on_gcd=True,
             can_cast_while_casting=True,
+            buff=IceBlitzBuff(),
         )
-
-    def apply_buff(self):
-        super().apply_buff()
-        self.character.damage_multiplier += self.ice_blitz_damage_multiplier
-
-    def remove_buff(self):
-        super().remove_buff()
-        self.character.damage_multiplier -= self.ice_blitz_damage_multiplier

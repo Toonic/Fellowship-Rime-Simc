@@ -2,14 +2,12 @@
 
 from characters.rime import RimeSpell
 from characters.rime.talent import RimeTalents
-from characters.rime.buffs import GlacialAssault
+from characters.rime.buffs import GlacialAssaultBuff
 from .dance_of_swallows import DanceOfSwallows
 
 
 class ColdSnap(RimeSpell):
     """Cold Snap Spell"""
-
-    glacial_assault = GlacialAssault()
 
     def __init__(self):
         super().__init__(
@@ -18,11 +16,12 @@ class ColdSnap(RimeSpell):
 
         self._dance_of_swallows_trigger_count = 10
 
+    def apply_buff(self):
+        if self.character.has_talent(RimeTalents.GLACIAL_ASSAULT):
+            GlacialAssaultBuff().apply(self.character)
+
     def on_cast_complete(self):
         super().on_cast_complete()
-        self.glacial_assault.character = self.character
-        if RimeTalents.GLACIAL_ASSAULT in self.character.talents:
-            self.glacial_assault.apply_buff()
 
         # Trigger Dance of Swallows on cast if the buff is there.
         if (
@@ -32,11 +31,5 @@ class ColdSnap(RimeSpell):
             is not None
         ):
             # Dance of Swallows is hard coded to trigger 10 times from ColdSnap
-
-            # Mel's NOTE: The why dont you code it to the attribute?
-            # E.g.: self.dance_of_swallows_trigger_count = 10
-            # OR we would store trigger counts for each spell in the
-            # Dance of Swallows class, since there may be more variance.
-            # -> Decide!!
             for _ in range(self._dance_of_swallows_trigger_count):
                 self.character.dance_of_swallows.damage()

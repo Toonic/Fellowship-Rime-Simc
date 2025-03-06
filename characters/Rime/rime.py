@@ -12,6 +12,8 @@ from characters.rime.spells import (
     IceComet,
     WrathOfWinter,
 )
+
+from characters.rime.buffs import IceBlitzBuff
 from base import BaseCharacter
 
 
@@ -63,6 +65,10 @@ class Rime(BaseCharacter):
         if self.anima >= 10:
             self.anima = 0
             self.gain_winter_orbs(1)
+
+        if IceBlitzBuff().simfell_name in self.buffs:
+            for _ in range(amount):
+                self.anima_spikes.cast()
 
     def gain_winter_orbs(self, amount):
         """Gain Winter Orbs"""

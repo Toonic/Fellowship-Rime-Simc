@@ -26,6 +26,8 @@ class BaseSpell(ABC):
         can_cast_on_gcd=False,
         # If the spell can be cast while casting or not.
         can_cast_while_casting=False,
+        buff=None,
+        debuff=None,
     ):
         self.name = name
         self.cast_time = cast_time
@@ -38,6 +40,8 @@ class BaseSpell(ABC):
         self.can_cast_while_casting = can_cast_while_casting
         self.remaining_cooldown = 0
         self.character = None
+        self.buff = buff
+        self.debuff = debuff
 
     @final
     def set_character(self, character: "BaseCharacter") -> None:
@@ -149,6 +153,8 @@ class BaseSpell(ABC):
 
     def on_cast_complete(self) -> None:
         """The effect of the spell when the cast is complete."""
+        self.apply_buff()
+        self.apply_debuff()
         self.set_cooldown()
 
     def set_cooldown(self) -> None:
@@ -162,3 +168,13 @@ class BaseSpell(ABC):
     def update_cooldown(self, delta_time: int) -> None:
         """Decreases the remaining cooldown by the delta time."""
         self.remaining_cooldown -= delta_time
+
+    def apply_buff(self):
+        """Applies the associated buff to the character."""
+        if self.buff is not None:
+            self.buff.apply(self.character)
+
+    def apply_debuff(self):
+        #! not working yet.
+        if self.debuff is not None:
+            self.debuff.apply(self.character.simulation)

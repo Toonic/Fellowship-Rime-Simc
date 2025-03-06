@@ -26,7 +26,7 @@ class BaseDebuff(BaseSpell):
         super().on_cast_complete()
         self.apply_debuff()
 
-    def apply_debuff(self) -> None:
+    def apply(self) -> None:
         """Applies the debuff to the target."""
 
         # Fellowship for some reason has an additional 0.15 Seconds
@@ -72,9 +72,9 @@ class BaseDebuff(BaseSpell):
                         + f"❌ Removing [deep_pink4]{self.name} "
                         + "(Debuff)[/deep_pink4]"
                     )
-                self.remove_debuff()
+                self.remove()
 
-    def remove_debuff(self) -> None:
+    def remove(self) -> None:
         """Removes the debuff from the target."""
 
         self.remaining_time = 0

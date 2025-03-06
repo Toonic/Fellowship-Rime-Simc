@@ -3,6 +3,7 @@
 from rich import print  # pylint: disable=redefined-builtin
 
 from base import BaseSpell
+from base.character import BaseCharacter
 
 
 class BaseBuff(BaseSpell):
@@ -24,14 +25,12 @@ class BaseBuff(BaseSpell):
     def cast(self, do_damage=False):
         super().cast(do_damage)
 
-    def on_cast_complete(self):
-        super().on_cast_complete()
-        self.apply_buff()
-
-    def apply_buff(self) -> None:
+    def apply(self, character: "BaseCharacter") -> None:
         """Applies the debuff to the target."""
+        self.character = character
+
         if self.simfell_name in self.character.buffs:
-            self.character.buffs[self.simfell_name].reapply_buff()
+            self.character.buffs[self.simfell_name].reapply()
             return
 
         self.tick_rate = self.base_tick_rate / (
@@ -41,17 +40,21 @@ class BaseBuff(BaseSpell):
         self.time_to_next_tick = self.tick_rate
         self.remaining_time = self.duration
         self.character.buffs[self.simfell_name] = self
+        self.on_apply()
 
         self._is_active = True
 
         if self.character.simulation.do_debug:
             print(
                 f"Time {self.character.simulation.time:.2f}: "
-                + f"✔️ Applied [dark_green]{self.name} "
+                + f"✔️  Applied [dark_green]{self.name} "
                 + "(Buff)[/dark_green] to character."
             )
 
-    def reapply_buff(self) -> None:
+    def on_apply(self) -> None:
+        """Called when the buff is applied."""
+
+    def reapply(self) -> None:
         """Reapplies the buff to the target."""
         if self.current_stacks < self.maximum_stacks:
             self.current_stacks += 1
@@ -88,17 +91,26 @@ class BaseBuff(BaseSpell):
                     delta_time = 0
 
             if self.remaining_time <= 0 and self._is_active:
-                self.remove_buff()
+                self.remove()
 
-    def remove_buff(self, remove_all_stacks=True) -> None:
+    def remove(self, remove_all_stacks=True) -> None:
         """Removes the buff from the character."""
+        if remove_all_stacks:
+            self.current_stacks = 0
+        else:
+            self.current_stacks -= 1
 
-        self.remaining_time = 0
-        self.character.buffs.pop(self.simfell_name, None)
-        self._is_active = False
-        if self.character.simulation.do_debug:
-            print(
-                f"Time {self.character.simulation.time:.2f}: "
-                + f"❌ Removed [dark_green]{self.name} "
-                + "(Buff)[/dark_green] from character."
-            )
+        if self.current_stacks == 0:
+            self.remaining_time = 0
+            self.character.buffs.pop(self.simfell_name, None)
+            self.on_remove()
+            self._is_active = False
+            if self.character.simulation.do_debug:
+                print(
+                    f"Time {self.character.simulation.time:.2f}: "
+                    + f"❌ Removed [dark_green]{self.name} "
+                    + "(Buff)[/dark_green] from character."
+                )
+
+    def on_remove(self):
+        """Called when the buff is removed."""

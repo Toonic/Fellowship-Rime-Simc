@@ -129,6 +129,18 @@ class BaseCharacter(ABC):
         """Adds a talent to the character's available talents."""
         self.talents.append(talent)
 
+    def has_talent(self, talent: CharacterTalentT) -> bool:
+        """Returns true if the talent is present."""
+        return talent in self.talents
+
+    def has_buff(self, buff: "BaseBuff") -> bool:
+        """Returns true if the buff is present"""
+        return buff.simfell_name in self.buffs
+
+    def get_buff(self, buff: "BaseBuff") -> "BaseBuff":
+        """Returns the current Buff."""
+        return self.buffs[buff.simfell_name]
+
     @abstractmethod
     def configure_spell_book(self) -> None:
         """Adds a spells to the character's spell book."""

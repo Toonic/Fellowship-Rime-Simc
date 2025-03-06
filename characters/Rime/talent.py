@@ -3,12 +3,20 @@
 from base import CharacterTalent, Talent
 
 
+class GlacialAssaultTalent(Talent):
+    """Defines static variables for the Glacial Assault Talent"""
+
+    maximum_stacks = 4
+    bonus_damage = 100  # As a %.
+    bonus_critical_strike = 20
+
+
 class RimeTalents(CharacterTalent):
     """Enum for Rime's talents."""
 
     CHILLBLAIN = Talent("1.1", "Chillblain")
     COALESCING_ICE = Talent("1.2", "Coalescing Ice")
-    GLACIAL_ASSAULT = Talent("1.3", "Glacial Assault")
+    GLACIAL_ASSAULT = GlacialAssaultTalent("1.3", "Glacial Assault")
     UNRELENTING_ICE = Talent("2.1", "Unrelenting Ice")
     ICY_FLOW = Talent("2.2", "Icy Flow")
     TUNDRA_GUARD = Talent("2.3", "Tundra Guard")
