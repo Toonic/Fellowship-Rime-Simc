@@ -9,7 +9,10 @@ class WrathOfWinterBuff(RimeBuff):
 
     def __init__(self):
         super().__init__(
-            "Wrath Of Winter", duration=20, maximum_stacks=1, ticks=10
+            "Wrath Of Winter",
+            duration=20,
+            maximum_stacks=1,
+            base_tick_duration=2,
         )
 
     def on_tick(self):

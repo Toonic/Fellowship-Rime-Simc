@@ -11,16 +11,11 @@ class BaseDebuff(BaseSpell):
 
     remaining_time = 0
 
-    def __init__(self, *args, base_tick_duration=-1, duration=0, **kwargs):
+    def __init__(self, *args, duration=0, **kwargs):
         super().__init__(*args, **kwargs)
         self.duration = duration
-        if base_tick_duration == -1:
-            self.base_tick_rate = duration / self.ticks
-        else:
-            self.base_tick_rate = base_tick_duration
         self.tick_rate = 0
         self.time_to_next_tick = 0
-
         self._is_active = True
 
     def cast(self, do_damage=False):
@@ -34,12 +29,14 @@ class BaseDebuff(BaseSpell):
         """Applies the debuff to the target."""
         self.character = character
         self.remaining_time = self.duration
-        self.tick_rate = self.base_tick_rate / (
-            1 + (self.character.get_haste() / 100)
-        )
-        # Temporary testing against old.
-        # self.tick_rate = self.base_tick_rate
-        self.time_to_next_tick = self.tick_rate
+        if self.base_tick_duration > 0:
+            self.tick_rate = self.base_tick_duration / (
+                1 + (self.character.get_haste() / 100)
+            )
+
+            self.time_to_next_tick = self.tick_rate
+        else:
+            self.time_to_next_tick = self.duration
         self.character.simulation.debuffs[self.simfell_name] = self
         self._is_active = True
 

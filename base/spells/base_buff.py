@@ -14,7 +14,6 @@ class BaseBuff(BaseSpell):
     def __init__(self, *args, duration=0, maximum_stacks=1, **kwargs):
         super().__init__(*args, **kwargs)
         self.duration = duration
-        self.base_tick_rate = duration / self.ticks
         self.tick_rate = 0
         self.time_to_next_tick = 0
         self.maximum_stacks = maximum_stacks
@@ -33,11 +32,15 @@ class BaseBuff(BaseSpell):
             self.character.buffs[self.simfell_name].reapply()
             return
 
-        self.tick_rate = self.base_tick_rate / (
-            1 + (self.character.get_haste() / 100)
-        )
+        if self.base_tick_duration > 0:
+            self.tick_rate = self.base_tick_duration / (
+                1 + (self.character.get_haste() / 100)
+            )
 
-        self.time_to_next_tick = self.tick_rate
+            self.time_to_next_tick = self.tick_rate
+        else:
+            self.time_to_next_tick = self.duration
+
         self.remaining_time = self.duration
         self.character.buffs[self.simfell_name] = self
         self.on_apply()
@@ -59,11 +62,15 @@ class BaseBuff(BaseSpell):
         if self.current_stacks < self.maximum_stacks:
             self.current_stacks += 1
 
-        self.tick_rate = self.base_tick_rate / (
-            1 + (self.character.get_haste() / 100)
-        )
+        if self.base_tick_duration > 0:
+            self.tick_rate = self.base_tick_duration / (
+                1 + (self.character.get_haste() / 100)
+            )
 
-        self.time_to_next_tick = self.tick_rate
+            self.time_to_next_tick = self.tick_rate
+        else:
+            self.time_to_next_tick = self.duration
+
         self.remaining_time = self.duration
         self.character.buffs[self.simfell_name] = self
 

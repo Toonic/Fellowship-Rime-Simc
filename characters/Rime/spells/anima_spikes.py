@@ -1,11 +1,7 @@
 """Module for Anima Spikes Spell"""
 
-from typing import TYPE_CHECKING
 from characters.rime import RimeSpell
 from characters.rime.talent import RimeTalents, IcyFlowTalent
-
-if TYPE_CHECKING:
-    from characters.rime.spells import FreezingTorrent
 
 
 class AnimaSpikes(RimeSpell):

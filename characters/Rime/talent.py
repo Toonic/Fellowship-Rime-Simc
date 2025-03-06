@@ -47,6 +47,12 @@ class WisdomOfTheNorthTalent(Talent):
     ice_blitz_bonus_damage = 10  # Additional Percent.
 
 
+class SoulfrostTorrentTalent(Talent):
+    torrent_bonus_damage = 1.5  # Multiplier
+    torrent_bonus_duration = 2  # Multiplier
+    soulfrost_ppm = 1.5  # PPM
+
+
 class RimeTalents(CharacterTalent):
     """Enum for Rime's talents."""
 
@@ -58,4 +64,4 @@ class RimeTalents(CharacterTalent):
     TUNDRA_GUARD = Talent("2.3", "Tundra Guard")
     AVALANCHE = AvalancheTalent("3.1", "Avalanche")
     WISDOM_OF_THE_NORTH = WisdomOfTheNorthTalent("3.2", "Wisdom of the North")
-    SOULFROST_TORRENT = Talent("3.3", "Soulfrost Torrent")
+    SOULFROST_TORRENT = SoulfrostTorrentTalent("3.3", "Soulfrost Torrent")

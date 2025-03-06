@@ -20,7 +20,7 @@ class BaseSpell(ABC):
         # The Damage the spell does based on the players main stat.
         damage_percent=0,
         channeled=False,  # If the spell is channeled or not.
-        ticks=1,  # How many ticks of damage over the duration.
+        base_tick_duration=-1,  # How many ticks of damage over the duration.
         has_gcd=True,  # If the spell has a GCD or not.
         # If the spell can be cast while GCD  is happening or not.
         can_cast_on_gcd=False,
@@ -34,7 +34,7 @@ class BaseSpell(ABC):
         self.cooldown = cooldown
         self.damage_percent = damage_percent
         self.channeled = channeled
-        self.ticks = ticks
+        self.base_tick_duration = base_tick_duration
         self.has_gcd = has_gcd
         self.can_cast_on_gcd = can_cast_on_gcd
         self.can_cast_while_casting = can_cast_while_casting
@@ -42,6 +42,7 @@ class BaseSpell(ABC):
         self.character = None
         self.buff = buff
         self.debuff = debuff
+        self.ticks = 0
 
     @final
     def set_character(self, character: "BaseCharacter") -> None:
@@ -68,10 +69,11 @@ class BaseSpell(ABC):
         """Casts the spell."""
         if self.channeled:
             self.character.simulation.gcd = self.get_gcd()
-            tick_interval = self.effective_cast_time() / self.ticks
             self.set_cooldown()  # Channeled spells cooldown starts on cast.
+            self.ticks = int(self.cast_time / self.base_tick_duration)
+            self.damage()
             for _ in range(self.ticks):
-                self.character.simulation.update_time(tick_interval)
+                self.character.simulation.update_time(self.base_tick_duration)
                 if do_damage:
                     self.damage()
                 self.on_tick()
@@ -104,9 +106,8 @@ class BaseSpell(ABC):
 
         # Roll for Crit Damage.
         if random.uniform(0, 100) < self.get_crit_chance():
+            self.on_crit()
             damage *= 2 * self.character.get_crit_power()
-        if self.ticks > 1:
-            damage /= self.ticks
 
         if damage > 0:
             if self.character.simulation.do_debug:
@@ -145,6 +146,9 @@ class BaseSpell(ABC):
         # of the spell.
 
         return crit_chance
+
+    def on_crit(self) -> None:
+        """Called when a spell crits."""
 
     def on_tick(self) -> None:
         """The effect of the spell on each tick."""

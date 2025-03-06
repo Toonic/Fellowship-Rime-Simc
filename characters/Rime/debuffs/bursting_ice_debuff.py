@@ -11,10 +11,9 @@ class BurstingIceDebuff(RimeDebuff):
         super().__init__(
             "Bursting Ice",
             anima_per_tick=1,
-            ticks=6,
             base_tick_duration=0.5,
             duration=3.15,
-            damage_percent=366,
+            damage_percent=61,  # Tick Based Damage.
         )
 
     def damage_modifiers(self, damage):

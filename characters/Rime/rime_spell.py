@@ -1,6 +1,7 @@
 """Module for Rime's spells."""
 
 from base import BaseSpell
+from characters.rime.talent import RimeTalents
 
 
 # Defines the RimeSpell class.
@@ -30,6 +31,13 @@ class RimeSpell(BaseSpell):
             super().is_ready()
             and self.character.winter_orbs >= self.winter_orb_cost
         )
+
+    def on_crit(self):
+        if self.character.has_talent(RimeTalents.SOULFROST_TORRENT):
+            # TODO: Check for PPM.
+            from characters.rime.buffs import SoulfrostBuff
+
+            SoulfrostBuff().apply(self.character)
 
     def on_cast_complete(self):
         super().on_cast_complete()

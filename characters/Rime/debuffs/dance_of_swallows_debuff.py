@@ -1,9 +1,5 @@
-from typing import TYPE_CHECKING
 from characters.rime import RimeDebuff
 from characters.rime.talent import IcyFlowTalent, RimeTalents
-
-if TYPE_CHECKING:
-    from characters.rime.spells import FreezingTorrent
 
 
 class DanceOfSwallowsDebuff(RimeDebuff):
