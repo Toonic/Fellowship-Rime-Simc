@@ -1,10 +1,10 @@
 """Module for Dance of Swallows Spell"""
 
-from characters.rime import RimeDebuff
+from characters.rime import RimeSpell
 from characters.rime.debuffs import DanceOfSwallowsDebuff
 
 
-class DanceOfSwallows(RimeDebuff):
+class DanceOfSwallows(RimeSpell):
     """Dance of Swallows Spell"""
 
     def __init__(self):

@@ -9,7 +9,8 @@ class BurstingIceDebuff(RimeDebuff):
             "Bursting Ice",
             anima_per_tick=1,
             ticks=6,
-            duration=3,
+            base_tick_duration=0.5,
+            duration=3.15,
             damage_percent=366,
         )
 

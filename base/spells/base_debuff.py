@@ -11,10 +11,13 @@ class BaseDebuff(BaseSpell):
 
     remaining_time = 0
 
-    def __init__(self, *args, duration=0, **kwargs):
+    def __init__(self, *args, base_tick_duration=-1, duration=0, **kwargs):
         super().__init__(*args, **kwargs)
         self.duration = duration
-        self.base_tick_rate = duration / self.ticks
+        if base_tick_duration == -1:
+            self.base_tick_rate = duration / self.ticks
+        else:
+            self.base_tick_rate = base_tick_duration
         self.tick_rate = 0
         self.time_to_next_tick = 0
 
@@ -30,9 +33,7 @@ class BaseDebuff(BaseSpell):
     def apply(self, character: "BaseCharacter") -> None:
         """Applies the debuff to the target."""
         self.character = character
-        # Fellowship for some reason has an additional 0.15 Seconds
-        # for debuffs. WHY?!
-        self.remaining_time = self.duration + 0.15
+        self.remaining_time = self.duration
         self.tick_rate = self.base_tick_rate / (
             1 + (self.character.get_haste() / 100)
         )
@@ -67,12 +68,6 @@ class BaseDebuff(BaseSpell):
                     delta_time = 0
 
             if self.remaining_time <= 0 and self._is_active:
-                if self.character.simulation.do_debug:
-                    print(
-                        f"Time {self.character.simulation.time:.2f}: "
-                        + f"❌ Removing [deep_pink4]{self.name} "
-                        + "(Debuff)[/deep_pink4]"
-                    )
                 self.remove()
 
     def remove(self) -> None:

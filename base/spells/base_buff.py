@@ -47,7 +47,7 @@ class BaseBuff(BaseSpell):
         if self.character.simulation.do_debug:
             print(
                 f"Time {self.character.simulation.time:.2f}: "
-                + f"✔️  Applied [dark_green]{self.name} "
+                + f"✔️ Applied [dark_green]{self.name} "
                 + "(Buff)[/dark_green] to character."
             )
 

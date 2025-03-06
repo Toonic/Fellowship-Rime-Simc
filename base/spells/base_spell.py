@@ -76,11 +76,11 @@ class BaseSpell(ABC):
                     self.damage()
                 self.on_tick()
         else:
+            self.character.simulation.gcd = self.get_gcd()
             self.character.simulation.update_time(self.effective_cast_time())
             if do_damage:
                 self.damage()
             self.on_cast_complete()
-            self.character.simulation.gcd = self.get_gcd()
 
     # NOTE: Public because Tariq has some spells with a static GCD
     # so this will future support that.
