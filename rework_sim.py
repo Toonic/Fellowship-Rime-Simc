@@ -95,18 +95,6 @@ class Simulation:
                     )
                 self.update_time(self.gcd)
 
-            # for spell in self.character.rotation:
-            #     if self.character.spells[spell].is_ready():
-            #         if self.do_debug:
-            #             spell_name = self.character.spells[spell].name
-            #             print(
-            #                 f"Time {self.time:.2f}: "
-            #                 + f"🔮 Casting [cornflower_blue]{spell_name}"
-            #                 + "[/cornflower_blue]. "
-            #             )
-            #         self.character.spells[spell].cast()
-            #         break
-
             for action in self.configuration.actions:
                 if self.do_debug and detailed_debug:
                     print(
@@ -143,11 +131,12 @@ class Simulation:
                     print("\t=====================\n")
 
                 if all([is_spell_ready, character_check, spell_check]):
-                    print(
-                        f"Time {self.time:.2f}: "
-                        + f"🔮 Casting [cornflower_blue]{spell.name}"
-                        + "[/cornflower_blue]"
-                    )
+                    if self.do_debug:
+                        print(
+                            f"Time {self.time:.2f}: "
+                            + f"🔮 Casting [cornflower_blue]{spell.name}"
+                            + "[/cornflower_blue]"
+                        )
                     spell.cast()
                     break
             else:

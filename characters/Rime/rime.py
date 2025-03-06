@@ -13,6 +13,8 @@ from characters.rime.spells import (
     WrathOfWinter,
 )
 
+from characters.rime.talent import RimeTalents, AvalancheTalent
+
 from characters.rime.buffs import IceBlitzBuff
 from base import BaseCharacter
 
@@ -77,3 +79,8 @@ class Rime(BaseCharacter):
         # TODO: Spirit Gamba on Orbs.
         self.winter_orbs -= amount
         self.winter_orbs = max(self.winter_orbs, 0)
+
+    def add_talent(self, talent):
+        super().add_talent(talent)
+        if talent == RimeTalents.AVALANCHE:
+            self.crit_power_multiplier += AvalancheTalent.bonus_crit_power

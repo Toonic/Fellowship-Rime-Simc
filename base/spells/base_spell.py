@@ -90,7 +90,6 @@ class BaseSpell(ABC):
             1.5 / (1 + self.character.get_haste() / 100) if self.has_gcd else 0
         )
 
-    @final
     def damage(self) -> float:
         """Returns the damage of the spell. Including any modifiers."""
         # TODO: Handle AOE.
@@ -105,8 +104,7 @@ class BaseSpell(ABC):
 
         # Roll for Crit Damage.
         if random.uniform(0, 100) < self.get_crit_chance():
-            damage *= 2  # TODO: Include Crit Power.
-
+            damage *= 2 * self.character.get_crit_power()
         if self.ticks > 1:
             damage /= self.ticks
 

@@ -1,4 +1,5 @@
 from base import BaseBuff
+from characters.rime.talent import RimeTalents, WisdomOfTheNorthTalent
 
 
 class IceBlitzBuff(BaseBuff):
@@ -10,7 +11,17 @@ class IceBlitzBuff(BaseBuff):
         super().__init__("Ice Blitz", duration=20, maximum_stacks=1)
 
     def on_apply(self):
-        self.character.damage_multiplier += self.ice_blitz_damage_multiplier
+        damage_multiplier = self.ice_blitz_damage_multiplier
+        if self.character.has_talent(RimeTalents.WISDOM_OF_THE_NORTH):
+            damage_multiplier += (
+                WisdomOfTheNorthTalent.ice_blitz_bonus_damage / 100
+            )
+        self.character.damage_multiplier += damage_multiplier
 
     def on_remove(self):
-        self.character.damage_multiplier -= self.ice_blitz_damage_multiplier
+        damage_multiplier = self.ice_blitz_damage_multiplier
+        if self.character.has_talent(RimeTalents.WISDOM_OF_THE_NORTH):
+            damage_multiplier += (
+                WisdomOfTheNorthTalent.ice_blitz_bonus_damage / 100
+            )
+        self.character.damage_multiplier -= damage_multiplier

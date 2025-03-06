@@ -26,8 +26,8 @@ class GlacialBlast(RimeSpell):
     def damage_modifiers(self, damage) -> float:
         if self.is_glacial_assault_ready():
             return damage * (1 + (GlacialAssaultTalent.bonus_damage) / 100)
-        else:
-            return damage
+
+        return damage
 
     def on_cast_complete(self):
         super().on_cast_complete()

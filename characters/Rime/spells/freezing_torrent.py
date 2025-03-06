@@ -2,6 +2,12 @@
 
 from characters.rime import RimeSpell
 from characters.rime.debuffs import DanceOfSwallowsDebuff
+from characters.rime.spells import BurstingIce
+from characters.rime.talent import (
+    RimeTalents,
+    ChillblainTalent,
+    UnrelentingIceTalent,
+)
 
 
 class FreezingTorrent(RimeSpell):
@@ -22,8 +28,19 @@ class FreezingTorrent(RimeSpell):
             ticks=6,
         )
 
+    def damage_modifiers(self, damage):
+        if self.character.has_talent(RimeTalents.CHILLBLAIN):
+            return damage * (1 + (ChillblainTalent.bonus_torrent_damage / 100))
+
+        return damage
+
     def on_tick(self):
         self.character.gain_anima(self.anima_per_tick)
+
+        if self.character.has_talent(RimeTalents.UNRELENTING_ICE):
+            self.character.spells[BurstingIce().simfell_name].update_cooldown(
+                UnrelentingIceTalent.bursting_ice_cdr_from_torrent
+            )
 
         dance_of_swallows = self.character.simulation.get_debuff(
             DanceOfSwallowsDebuff()

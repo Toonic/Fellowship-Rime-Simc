@@ -27,6 +27,8 @@ class BaseCharacter(ABC):
         self._haste = self.calculate_stat_diminishing_returns(haste)
         self._spirit = self.calculate_stat_diminishing_returns(spirit)
 
+        self._crit_power = 1
+
         # This will hold the character's available spells.
         self.spells: Dict[str, "BaseSpell"] = {}
 
@@ -54,6 +56,8 @@ class BaseCharacter(ABC):
         self.haste_additional = 0
         self.spirit_multiplier = 0
         self.spirit_additional = 0
+        self.crit_power_multiplier = 0
+        self.crit_power_additional = 0
 
     def calculate_stat_diminishing_returns(
         self, stat_points: int, base_percent=0
@@ -142,6 +146,12 @@ class BaseCharacter(ABC):
         if buff.simfell_name in self.buffs:
             return self.buffs[buff.simfell_name]
         return None
+
+    def get_crit_power(self) -> float:
+        """Returns crit power."""
+        return (self._crit_power + self.crit_power_additional) * (
+            1 + self.crit_multiplier
+        )
 
     @abstractmethod
     def configure_spell_book(self) -> None:
