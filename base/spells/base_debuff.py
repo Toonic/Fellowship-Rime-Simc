@@ -37,7 +37,7 @@ class BaseDebuff(BaseSpell):
             self.time_to_next_tick = self.tick_rate
         else:
             self.time_to_next_tick = self.duration
-        self.character.simulation.debuffs[self.simfell_name] = self
+        self.character.simulation.debuffs[self.simfell_id] = self
         self._is_active = True
 
         if self.character.simulation.do_debug:
@@ -69,7 +69,7 @@ class BaseDebuff(BaseSpell):
         """Removes the debuff from the target."""
 
         self.remaining_time = 0
-        self.character.simulation.debuffs.pop(self.simfell_name, None)
+        self.character.simulation.debuffs.pop(self.simfell_id, None)
         self._is_active = False
 
         if self.character.simulation.do_debug:

@@ -7,7 +7,7 @@ from characters.rime.talent import (
     UnrelentingIceTalent,
     SoulfrostTorrentTalent,
 )
-from utils.enums import SpellSimFellName
+from characters.rime.utils.enums import SpellSimFellName
 
 
 class FreezingTorrent(RimeSpell):

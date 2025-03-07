@@ -3,7 +3,7 @@
 from characters.rime import RimeSpell
 from characters.rime.talent import RimeTalents
 from characters.rime.buffs import GlacialAssaultBuff
-from utils.enums import SpellSimFellName
+from characters.rime.utils.enums import SpellSimFellName
 
 
 class ColdSnap(RimeSpell):

@@ -3,7 +3,7 @@
 from characters.rime import RimeSpell
 from characters.rime.talent import RimeTalents
 from characters.rime.talent import GlacialAssaultTalent
-from utils.enums import SpellSimFellName
+from characters.rime.utils.enums import SpellSimFellName
 
 
 class GlacialBlast(RimeSpell):

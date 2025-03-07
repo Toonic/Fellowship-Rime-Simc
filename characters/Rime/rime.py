@@ -17,7 +17,8 @@ from characters.rime.spells import (
     WrathOfWinter,
 )
 from characters.rime.talent import RimeTalents, AvalancheTalent
-from utils.enums import SpellSimFellName
+
+from .utils.enums import SpellSimFellName
 
 
 # Defines the Rime Character class.

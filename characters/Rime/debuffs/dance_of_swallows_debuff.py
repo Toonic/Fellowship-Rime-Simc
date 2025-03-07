@@ -2,7 +2,7 @@
 
 from characters.rime import RimeDebuff
 from characters.rime.talent import RimeTalents
-from utils.enums import SpellSimFellName
+from characters.rime.utils.enums import SpellSimFellName
 
 
 class DanceOfSwallowsDebuff(RimeDebuff):

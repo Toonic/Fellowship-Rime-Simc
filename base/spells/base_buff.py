@@ -28,8 +28,8 @@ class BaseBuff(BaseSpell):
         """Applies the debuff to the target."""
         self.character = character
 
-        if self.simfell_name in self.character.buffs:
-            self.character.buffs[self.simfell_name].reapply()
+        if self.simfell_id in self.character.buffs:
+            self.character.buffs[self.simfell_id].reapply()
             return
 
         if self.base_tick_duration > 0:
@@ -42,7 +42,7 @@ class BaseBuff(BaseSpell):
             self.time_to_next_tick = self.duration
 
         self.remaining_time = self.duration
-        self.character.buffs[self.simfell_name] = self
+        self.character.buffs[self.simfell_id] = self
         self.on_apply()
 
         self._is_active = True
@@ -72,7 +72,7 @@ class BaseBuff(BaseSpell):
             self.time_to_next_tick = self.duration
 
         self.remaining_time = self.duration
-        self.character.buffs[self.simfell_name] = self
+        self.character.buffs[self.simfell_id] = self
 
         self._is_active = True
 
@@ -109,7 +109,7 @@ class BaseBuff(BaseSpell):
 
         if self.current_stacks == 0:
             self.remaining_time = 0
-            self.character.buffs.pop(self.simfell_name, None)
+            self.character.buffs.pop(self.simfell_id, None)
             self.on_remove()
             self._is_active = False
             if self.character.simulation.do_debug:

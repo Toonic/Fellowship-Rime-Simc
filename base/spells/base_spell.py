@@ -50,7 +50,7 @@ class BaseSpell(ABC):
         self.character = character
 
     @property
-    def simfell_name(self) -> str:
+    def simfell_id(self) -> str:
         """Returns the name of the spell in the simfell file."""
         return self.name.lower().replace(" ", "_")
 
