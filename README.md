@@ -10,9 +10,9 @@ Currently working on:
 | --------------------- | ----------------- |
 | SimC-like integration | ⚙️ Rough Draft    |
 | Rotation Opener       | 💡 To be Discussed |
-| Debuff and Buff Ticks | In-Progress        |
-| Talent Rework         |  Not Started     |
-| Tariq + Other Heroes  | Not Started - Partial Support |
+| Area of Effect/Multi Target | Not Started        |
+| Multi Dotting | Not Started        |
+| Tariq + Other Heroes  | Partial Support |
 
 ## 🚀 How to Run
 
@@ -68,3 +68,4 @@ This will run the average DPS simulation with 5 enemies, using the default prese
 
 - [@michaelsherwood](https://github.com/michaelsherwood) - Progress Bar + Pretty print idea
   > Thank you for such early idea 🙏
+- [@EriiYenn](https://github.com/EriiYenn) - Putting up with me and my horrible Python Structure.
