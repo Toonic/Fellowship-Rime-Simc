@@ -19,7 +19,7 @@ from characters.rime.rime import Rime
 from characters.rime.preset import RimePreset
 from characters.rime.talent import RimeTalents
 from simfell_parser.simfile_parser import SimFileParser, SimFellConfiguration
-from rework_sim import Simulation
+from sim import Simulation
 
 
 def handle_configuration(
