@@ -9,7 +9,7 @@ from .talent import CharacterTalentT
 if TYPE_CHECKING:
     from base.spells.base_spell import BaseSpell
     from base.spells.base_buff import BaseBuff
-    from rework_sim import Simulation
+    from sim import Simulation
 
 
 class BaseCharacter(ABC):

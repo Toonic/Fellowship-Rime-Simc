@@ -10,6 +10,9 @@ Currently working on:
 | --------------------- | ----------------- |
 | SimC-like integration | ⚙️ Rough Draft    |
 | Rotation Opener       | 💡 To be Discussed |
+| Gems                  | Not Started  |
+| Armor                  | Not Started  |
+| Relics                  | Not Started  |
 | Area of Effect/Multi Target | Not Started        |
 | Multi Dotting | Not Started        |
 | Tariq + Other Heroes  | Partial Support |
