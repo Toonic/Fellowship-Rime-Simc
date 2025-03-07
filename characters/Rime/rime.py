@@ -1,5 +1,6 @@
 """Module for the Rime Character."""
 
+import random
 from characters.rime.spells import (
     AnimaSpikes,
     BurstingIce,
@@ -76,9 +77,11 @@ class Rime(BaseCharacter):
 
     def lose_winter_orbs(self, amount):
         """Lose Winter Orbs"""
-        # TODO: Spirit Gamba on Orbs.
         self.winter_orbs -= amount
         self.winter_orbs = max(self.winter_orbs, 0)
+        if random.uniform(0, 100) < self.get_spirit():
+            self.winter_orbs += amount
+            self.winter_orbs = min(self.winter_orbs, 5)
 
     def add_talent(self, talent):
         super().add_talent(talent)
