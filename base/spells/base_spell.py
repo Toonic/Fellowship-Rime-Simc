@@ -56,8 +56,6 @@ class BaseSpell(ABC):
 
     def is_ready(self) -> bool:
         """Returns True if the spell is ready to be cast."""
-        # TODO: Add the Conditional check here from the SimFell file
-        # as an additional check.
         return self.remaining_cooldown <= 0
 
     def effective_cast_time(self) -> float:

@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 class BaseCharacter(ABC):
     """Abstract base class for all characters."""
 
-    # TODO: Figure out Stat DR.
     percent_per_point = 0.21
 
     def __init__(self, main_stat, crit, expertise, haste, spirit):
@@ -33,7 +32,6 @@ class BaseCharacter(ABC):
         self.spells: Dict[str, "BaseSpell"] = {}
 
         # This will hold the character's rotation.
-        # TODO: Change this to an object reference of SimFell Action?
         self.rotation: List[str] = []
 
         # All the talents.

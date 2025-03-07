@@ -46,8 +46,6 @@ class BaseDebuff(BaseSpell):
                 + f"✔️ Applied [deep_pink4]{self.name} "
                 + "(Debuff)[/deep_pink4] to enemy."
             )
-        # TODO: Determine if there is a maximum buff/debuff count,
-        # and if re-casting it refreshes the duration.
 
     def update_remaining_duration(self, delta_time: int) -> None:
         """Decreases the remaining buff/debuff duration by the delta time."""
