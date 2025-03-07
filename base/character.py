@@ -135,14 +135,15 @@ class BaseCharacter(ABC):
         """Returns true if the talent is present."""
         return talent in self.talents
 
-    def has_buff(self, buff: "BaseBuff") -> bool:
+    def has_buff(self, buff_simfell_name: str) -> bool:
         """Returns true if the buff is present"""
-        return buff.simfell_name in self.buffs
+        return buff_simfell_name in self.buffs
 
-    def get_buff(self, buff: "BaseBuff") -> "BaseBuff":
+    def get_buff(self, buff_simfell_name: str) -> "BaseBuff":
         """Returns the current Buff."""
-        if buff.simfell_name in self.buffs:
-            return self.buffs[buff.simfell_name]
+        if self.has_buff(buff_simfell_name):
+            return self.buffs[buff_simfell_name]
+
         return None
 
     def get_crit_power(self) -> float:

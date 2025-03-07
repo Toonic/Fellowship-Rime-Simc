@@ -1,3 +1,5 @@
+"""Module for Soulfrost Buff"""
+
 from base import BaseBuff
 
 

@@ -3,7 +3,7 @@
 from characters.rime import RimeSpell
 from characters.rime.talent import RimeTalents
 from characters.rime.buffs import GlacialAssaultBuff
-from characters.rime.debuffs import DanceOfSwallowsDebuff
+from utils.enums import SpellSimFellName
 
 
 class ColdSnap(RimeSpell):
@@ -25,7 +25,7 @@ class ColdSnap(RimeSpell):
 
         # Trigger Dance of Swallows on cast if the buff is there.
         dance_of_swallows = self.character.simulation.get_debuff(
-            DanceOfSwallowsDebuff()
+            SpellSimFellName.DANCE_OF_SWALLOWS.value
         )
 
         if dance_of_swallows is not None:

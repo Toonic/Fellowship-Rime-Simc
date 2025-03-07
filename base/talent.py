@@ -18,7 +18,7 @@ class Talent:
 class CharacterTalent(Enum):
     """Enum for Rime's talents."""
 
-    value: Talent
+    # value: Talent
 
     @classmethod
     def get_by_identifier(

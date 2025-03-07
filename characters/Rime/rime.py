@@ -1,6 +1,9 @@
 """Module for the Rime Character."""
 
 import random
+
+from base import BaseCharacter
+from base.character import CharacterTalentT
 from characters.rime.spells import (
     AnimaSpikes,
     BurstingIce,
@@ -13,11 +16,8 @@ from characters.rime.spells import (
     IceComet,
     WrathOfWinter,
 )
-
 from characters.rime.talent import RimeTalents, AvalancheTalent
-
-from characters.rime.buffs import IceBlitzBuff
-from base import BaseCharacter
+from utils.enums import SpellSimFellName
 
 
 # Defines the Rime Character class.
@@ -35,15 +35,15 @@ class Rime(BaseCharacter):
 
     def configure_spell_book(self):
         self.spells = {
-            WrathOfWinter().simfell_name: WrathOfWinter(),
-            FrostBolt().simfell_name: FrostBolt(),
-            ColdSnap().simfell_name: ColdSnap(),
-            FreezingTorrent().simfell_name: FreezingTorrent(),
-            BurstingIce().simfell_name: BurstingIce(),
-            GlacialBlast().simfell_name: GlacialBlast(),
-            IceComet().simfell_name: IceComet(),
-            DanceOfSwallows().simfell_name: DanceOfSwallows(),
-            IceBlitz().simfell_name: IceBlitz(),
+            SpellSimFellName.WRATH_OF_WINTER.value: WrathOfWinter(),
+            SpellSimFellName.FROST_BOLT.value: FrostBolt(),
+            SpellSimFellName.COLD_SNAP.value: ColdSnap(),
+            SpellSimFellName.FREEZING_TORRENT.value: FreezingTorrent(),
+            SpellSimFellName.BURSTING_ICE.value: BurstingIce(),
+            SpellSimFellName.GLACIAL_BLAST.value: GlacialBlast(),
+            SpellSimFellName.ICE_COMET.value: IceComet(),
+            SpellSimFellName.DANCE_OF_SWALLOWS.value: DanceOfSwallows(),
+            SpellSimFellName.ICE_BLITZ.value: IceBlitz(),
         }
 
         self.anima_spikes = AnimaSpikes()
@@ -63,7 +63,7 @@ class Rime(BaseCharacter):
             self.anima = 0
             self.gain_winter_orbs(1)
 
-        if IceBlitzBuff().simfell_name in self.buffs:
+        if SpellSimFellName.ICE_BLITZ.value in self.buffs:
             for _ in range(amount):
                 self.anima_spikes.cast()
 
@@ -83,7 +83,7 @@ class Rime(BaseCharacter):
             self.winter_orbs += amount
             self.winter_orbs = min(self.winter_orbs, 5)
 
-    def add_talent(self, talent):
+    def add_talent(self, talent: CharacterTalentT):
         super().add_talent(talent)
         if talent == RimeTalents.AVALANCHE:
             self.crit_power_multiplier += AvalancheTalent.bonus_crit_power

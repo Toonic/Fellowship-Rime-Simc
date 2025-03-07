@@ -40,12 +40,12 @@ class Simulation:
             self.character._crit = 0
             self.character._spirit = 0
 
-    def get_debuff(self, debuff: BaseDebuff) -> BaseDebuff:
+    def get_debuff(self, debuff_simfell_name: str) -> BaseDebuff:
         """Returns the Debuff."""
-        if debuff.simfell_name in self.debuffs:
-            return self.debuffs[debuff.simfell_name]
-        else:
-            return None
+        if debuff_simfell_name in self.debuffs:
+            return self.debuffs[debuff_simfell_name]
+
+        return None
 
     def update_time(self, delta_time: float):
         """Update the time of the simulation."""

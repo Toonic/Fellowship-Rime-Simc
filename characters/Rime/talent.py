@@ -33,21 +33,29 @@ class UnrelentingIceTalent(Talent):
 
 
 class IcyFlowTalent(Talent):
+    """Defines static variables for the Icy Flow Talent"""
+
     torrent_cdr_from_anima_spikes = 0.2  # Flat value in seconds.
 
 
 class AvalancheTalent(Talent):
+    """Defines static variables for the Avalanche Talent"""
+
     bonus_crit_power = 0.05  # As Multiplier.
     double_comet_chance = 20  # As Percent
     triple_comet_chance = 4  # As Percent
 
 
 class WisdomOfTheNorthTalent(Talent):
+    """Defines static variables for the Wisdom of the North Talent"""
+
     cdr_per_orb_spent = 1  # Flat value in seconds.
     ice_blitz_bonus_damage = 10  # Additional Percent.
 
 
 class SoulfrostTorrentTalent(Talent):
+    """Defines static variables for the Soulfrost Torrent Talent"""
+
     torrent_bonus_damage = 1.5  # Multiplier
     torrent_bonus_duration = 2  # Multiplier
     soulfrost_ppm = 1.5  # PPM

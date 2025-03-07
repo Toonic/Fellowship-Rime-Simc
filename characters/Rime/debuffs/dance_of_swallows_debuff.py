@@ -1,5 +1,8 @@
+"""Module for Dance of Swallows Debuff"""
+
 from characters.rime import RimeDebuff
-from characters.rime.talent import IcyFlowTalent, RimeTalents
+from characters.rime.talent import RimeTalents
+from utils.enums import SpellSimFellName
 
 
 class DanceOfSwallowsDebuff(RimeDebuff):
@@ -15,8 +18,7 @@ class DanceOfSwallowsDebuff(RimeDebuff):
     def damage(self):
         super().damage()
         if self.character.has_talent(RimeTalents.ICY_FLOW):
-            from characters.rime.spells import FreezingTorrent
-
+            icy_flow = RimeTalents.ICY_FLOW.value
             self.character.spells[
-                FreezingTorrent().simfell_name
-            ].update_cooldown(IcyFlowTalent.torrent_cdr_from_anima_spikes)
+                SpellSimFellName.FREEZING_TORRENT.value
+            ].update_cooldown(icy_flow.torrent_cdr_from_anima_spikes)

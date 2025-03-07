@@ -1,5 +1,7 @@
+"""Module for Bursting Ice Debuff"""
+
 from characters.rime import RimeDebuff
-from characters.rime.talent import CoalescingIceTalent, RimeTalents
+from characters.rime.talent import RimeTalents
 
 
 class BurstingIceDebuff(RimeDebuff):
@@ -18,9 +20,8 @@ class BurstingIceDebuff(RimeDebuff):
 
     def damage_modifiers(self, damage):
         if self.character.has_talent(RimeTalents.COALESCING_ICE):
-            return damage * (
-                1 + (CoalescingIceTalent.bonus_bursting_damage / 100)
-            )
+            coalescing_ice = RimeTalents.COALESCING_ICE.value
+            return damage * (1 + (coalescing_ice.bonus_bursting_damage / 100))
 
         return damage
 
@@ -31,6 +32,7 @@ class BurstingIceDebuff(RimeDebuff):
 
         # TODO: Check to see if this is 1 target only.
         if self.character.has_talent(RimeTalents.COALESCING_ICE):
-            anima_gain += CoalescingIceTalent.bonus_anima_single_target
+            coalescing_ice = RimeTalents.COALESCING_ICE.value
+            anima_gain += coalescing_ice.bonus_anima_single_target
 
         self.character.gain_anima(min(anima_gain, self.maximum_possible_anima))

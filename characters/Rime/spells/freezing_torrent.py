@@ -1,15 +1,13 @@
 """Module for Freezing Torrent Spell"""
 
 from characters.rime import RimeSpell
-from characters.rime.debuffs import DanceOfSwallowsDebuff
-from characters.rime.buffs import SoulfrostBuff
-from characters.rime.spells import BurstingIce
 from characters.rime.talent import (
     RimeTalents,
     ChillblainTalent,
     UnrelentingIceTalent,
     SoulfrostTorrentTalent,
 )
+from utils.enums import SpellSimFellName
 
 
 class FreezingTorrent(RimeSpell):
@@ -35,11 +33,12 @@ class FreezingTorrent(RimeSpell):
     def cast(self, do_damage=True):
         if self.character.has_talent(
             RimeTalents.SOULFROST_TORRENT
-        ) and self.character.has_buff(SoulfrostBuff()):
+        ) and self.character.has_buff(SpellSimFellName.SOUL_FROST.value):
             if self.channeled:
                 self.in_soulfrost = True
                 self.character.simulation.gcd = self.get_gcd()
-                self.set_cooldown()  # Channeled spells cooldown starts on cast.
+                # Channeled spells cooldown starts on cast.
+                self.set_cooldown()
                 self.ticks = int(
                     (
                         self.cast_time
@@ -47,7 +46,9 @@ class FreezingTorrent(RimeSpell):
                     )
                     / self.base_tick_duration
                 )
-                self.character.get_buff(SoulfrostBuff()).remove()
+                self.character.get_buff(
+                    SpellSimFellName.SOUL_FROST.value
+                ).remove()
                 self.damage()
                 for _ in range(self.ticks):
                     self.character.simulation.update_time(
@@ -62,7 +63,7 @@ class FreezingTorrent(RimeSpell):
 
     def effective_cast_time(self):
         if self.character.has_talent(RimeTalents.SOULFROST_TORRENT):
-            if self.character.has_buff(SoulfrostBuff()):
+            if self.character.has_buff(SpellSimFellName.SOUL_FROST.value):
                 return (
                     super().effective_cast_time()
                     * SoulfrostTorrentTalent.torrent_bonus_duration
@@ -84,12 +85,14 @@ class FreezingTorrent(RimeSpell):
         self.character.gain_anima(self.anima_per_tick)
 
         if self.character.has_talent(RimeTalents.UNRELENTING_ICE):
-            self.character.spells[BurstingIce().simfell_name].update_cooldown(
+            self.character.spells[
+                SpellSimFellName.BURSTING_ICE.value
+            ].update_cooldown(
                 UnrelentingIceTalent.bursting_ice_cdr_from_torrent
             )
 
         dance_of_swallows = self.character.simulation.get_debuff(
-            DanceOfSwallowsDebuff()
+            SpellSimFellName.DANCE_OF_SWALLOWS.value
         )
 
         if dance_of_swallows is not None:

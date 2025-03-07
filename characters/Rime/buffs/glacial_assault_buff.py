@@ -1,3 +1,5 @@
+"""Module for Glacial Assault Buff"""
+
 from base import BaseBuff
 from characters.rime.talent import GlacialAssaultTalent
 

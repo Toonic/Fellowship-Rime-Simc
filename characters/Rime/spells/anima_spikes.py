@@ -1,7 +1,8 @@
 """Module for Anima Spikes Spell"""
 
 from characters.rime import RimeSpell
-from characters.rime.talent import RimeTalents, IcyFlowTalent
+from characters.rime.talent import RimeTalents
+from utils.enums import SpellSimFellName
 
 
 class AnimaSpikes(RimeSpell):
@@ -13,8 +14,7 @@ class AnimaSpikes(RimeSpell):
     def damage(self):
         super().damage()
         if self.character.has_talent(RimeTalents.ICY_FLOW):
-            from characters.rime.spells import FreezingTorrent
-
+            icy_flow = RimeTalents.ICY_FLOW.value
             self.character.spells[
-                FreezingTorrent().simfell_name
-            ].update_cooldown(IcyFlowTalent.torrent_cdr_from_anima_spikes)
+                SpellSimFellName.FREEZING_TORRENT.value
+            ].update_cooldown(icy_flow.torrent_cdr_from_anima_spikes)

@@ -2,8 +2,8 @@
 
 from characters.rime import RimeSpell
 from characters.rime.talent import RimeTalents
-from characters.rime.buffs import GlacialAssaultBuff
 from characters.rime.talent import GlacialAssaultTalent
+from utils.enums import SpellSimFellName
 
 
 class GlacialBlast(RimeSpell):
@@ -18,7 +18,8 @@ class GlacialBlast(RimeSpell):
         )
 
     def effective_cast_time(self):
-        # Checks to see if the Glacial Assault buff is ready and overrides the cast time to  be instant.
+        # Checks to see if the Glacial Assault buff is ready
+        # and overrides the cast time to  be instant.
         if self.is_glacial_assault_ready():
             return 0
         return super().effective_cast_time()
@@ -33,25 +34,29 @@ class GlacialBlast(RimeSpell):
         super().on_cast_complete()
         # On cast complete we want to consume the Glacial Assault buff.
         if self.is_glacial_assault_ready():
-            self.character.get_buff(GlacialAssaultBuff()).remove(True)
+            self.character.get_buff(
+                SpellSimFellName.GLACIAL_ASSAULT.value
+            ).remove(True)
 
     def crit_chance_modifiers(self, crit_chance):
-        # Checks to see if Glacial Assault is talented, and if it is increases the Crit.
+        # Checks to see if Glacial Assault is talented,
+        # and if it is increases the Crit.
         if self.character.has_talent(RimeTalents.GLACIAL_ASSAULT):
             crit_chance += GlacialAssaultTalent.bonus_critical_strike
         return crit_chance
 
     def is_glacial_assault_ready(self) -> bool:
-        """Checks to see if Glacial Assault is talented and at maximum stacks."""
-        if self.character.has_talent(RimeTalents.GLACIAL_ASSAULT):
-            if self.character.has_buff(GlacialAssaultBuff()):
-                if (
-                    self.character.get_buff(
-                        GlacialAssaultBuff()
-                    ).current_stacks
-                    == self.character.get_buff(
-                        GlacialAssaultBuff()
-                    ).maximum_stacks
-                ):
-                    return True
+        """Checks to see if Glacial Assault is talented
+        and at maximum stacks."""
+
+        if (
+            self.character.has_talent(RimeTalents.GLACIAL_ASSAULT)
+            and self.character.has_buff(SpellSimFellName.GLACIAL_ASSAULT.value)
+            and self.character.get_buff(
+                SpellSimFellName.GLACIAL_ASSAULT.value
+            ).current_stacks
+            == RimeTalents.GLACIAL_ASSAULT.value.maximum_stacks
+        ):
+            return True
+
         return False

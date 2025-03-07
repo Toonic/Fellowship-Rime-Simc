@@ -1,4 +1,6 @@
-from characters.rime import RimeBuff
+"""Module for Wrath of Winter Buff"""
+
+from characters.rime.rime_buff import RimeBuff
 
 
 class WrathOfWinterBuff(RimeBuff):
