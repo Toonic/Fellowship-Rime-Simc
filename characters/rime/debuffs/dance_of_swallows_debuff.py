@@ -1,7 +1,7 @@
 """Module for Dance of Swallows Debuff"""
 
 from characters.rime import RimeDebuff
-from characters.rime.talent import RimeTalents
+from characters.rime.talent import RimeTalents, SoulfrostTorrentTalent
 from characters.rime.utils.enums import SpellSimFellName
 
 
