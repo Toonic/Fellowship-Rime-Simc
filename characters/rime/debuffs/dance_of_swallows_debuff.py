@@ -22,3 +22,8 @@ class DanceOfSwallowsDebuff(RimeDebuff):
             self.character.spells[
                 SpellSimFellName.FREEZING_TORRENT.value
             ].update_cooldown(icy_flow.torrent_cdr_from_anima_spikes)
+
+    def crit_chance_modifiers(self, crit_chance):
+        if self.character.has_talent(RimeTalents.SOULFROST_TORRENT):
+            crit_chance += SoulfrostTorrentTalent.anima_and_swallow_crit_bonus
+        return crit_chance
