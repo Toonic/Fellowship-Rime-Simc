@@ -10,11 +10,12 @@ if TYPE_CHECKING:
 SpellTypeT = TypeVar("SpellTypeT", bound="BaseSpell")
 CharacterTypeT = TypeVar("CharacterTypeT", bound="BaseCharacter")
 
-# Dictionary to map class names to their corresponding classes
+# Dictionary to map hero names to their corresponding classes
 character_classes: Dict[str, CharacterTypeT] = {
     "Rime": Rime,
 }
 
+# # Dictionary to map hero names to their default simfell file.
 default_simfell_files: Dict[str, str] = {
     "Rime": "simfell_parser/defaults/rime_default.simfell",
 }

@@ -11,4 +11,6 @@ class ExampleBuffSpell(ExampleHeroSpell):
     # The main difference here is that we apply a buff on cast instead of
     # dealing damage directly. In this case, the ExampleBuff we created.
     def __init__(self):
-        super().__init__("Example Spell", cast_time=1.5, buff=ExampleBuff())
+        super().__init__(
+            "Example Buff Spell", cast_time=1.5, buff=ExampleBuff()
+        )

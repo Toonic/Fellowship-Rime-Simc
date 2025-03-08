@@ -9,3 +9,5 @@ class SpellSimFellName(Enum):
     """Enum for spell simfell names"""
 
     EXAMPLESPELL = "example_spell"
+    EXAMPLESPELLBUFF = "example_spell_buff"
+    EXAMPLESPELLDEBUFF = "example_spell_debuff"

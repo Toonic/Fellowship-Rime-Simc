@@ -4,7 +4,7 @@ import random
 
 from base import BaseCharacter
 
-from characters._example.spells import ExampleSpell
+from characters._example.spells import ExampleSpell, ExampleDebuff, ExampleBuff
 from characters._example.talent import ExampleTalents
 from .utils.enums import SpellSimFellName
 
@@ -33,6 +33,8 @@ class ExampleHero(BaseCharacter):
     def configure_spell_book(self):
         self.spells = {
             SpellSimFellName.EXAMPLESPELL.value: ExampleSpell(),
+            SpellSimFellName.EXAMPLESPELLBUFF.value: ExampleBuff(),
+            SpellSimFellName.EXAMPLESPELLDEBUFF.value: ExampleDebuff(),
         }
 
         # We then need to go through and add a reference to the character to
