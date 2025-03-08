@@ -41,8 +41,6 @@ def handle_configuration(
         configuration.enemies = arguments.enemy_count
     if arguments.talent_tree:
         configuration.talents = arguments.talent_tree
-    # if arguments.preset:
-    #     configuration.character = RimePreset[arguments.preset].value
     if arguments.custom_character:
         try:
             stats = [
