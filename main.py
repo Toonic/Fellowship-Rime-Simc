@@ -64,19 +64,19 @@ def handle_configuration(
                     + f"Invalid stat: {stat}"
                 )
 
-        if arguments.character_hero:
-            # configuration.hero =
-            configuration.character = character_classes[
-                arguments.character_hero
-            ](
-                intellect=stats[0],
-                crit=stats[1],
-                expertise=stats[2],
-                haste=stats[3],
-                spirit=stats[4],
-            )
-        else:
-            raise ValueError("Custom character must include a hero -ch.")
+        hero = (
+            arguments.character_hero
+            if arguments.character_hero is not None
+            else configuration.hero
+        )
+
+        configuration.character = character_classes[hero](
+            intellect=stats[0],
+            crit=stats[1],
+            expertise=stats[2],
+            haste=stats[3],
+            spirit=stats[4],
+        )
 
     if arguments.duration:
         configuration.duration = arguments.duration
