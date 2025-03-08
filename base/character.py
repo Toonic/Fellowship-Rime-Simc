@@ -127,9 +127,8 @@ class BaseCharacter(ABC):
         """Returns the character's damage multiplyer."""
         return 1 + self.damage_multiplier
 
-    def add_talent(self, talent: CharacterTalentT) -> None:
-        """Adds a talent to the character's available talents."""
-        self.talents.append(talent)
+    def add_talent(self, talent_identifier: str) -> None:
+        """Adds a talent to the character's available talents. To be overridden"""
 
     def has_talent(self, talent: CharacterTalentT) -> bool:
         """Returns true if the talent is present."""
