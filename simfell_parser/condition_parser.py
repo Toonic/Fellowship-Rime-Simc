@@ -176,6 +176,8 @@ class SimFileConditionParser:
         """Returns the condition value from the Character."""
         attribute_name = condition.split(".", 1)[1]
         character_value = getattr(simulation.character, attribute_name, None)
+        if callable(character_value):
+            character_value = character_value()
         return character_value
 
     @staticmethod
@@ -196,10 +198,12 @@ class SimFileConditionParser:
         buff_name = condition.split(".", 2)[1]
         attribute_name = condition.split(".", 2)[2]
         if buff_name in simulation.character.buffs:
-            debuff_value = getattr(
+            buff_value = getattr(
                 simulation.character.buffs[buff_name], attribute_name, None
             )
-            return debuff_value
+            if callable(buff_value):
+                buff_value = buff_value()
+            return buff_value
         return None
 
     @staticmethod
@@ -211,5 +215,7 @@ class SimFileConditionParser:
             debuff_value = getattr(
                 simulation.debuffs[debuff_name], attribute_name, None
             )
+            if callable(debuff_value):
+                debuff_value = debuff_value()
             return debuff_value
         return None
