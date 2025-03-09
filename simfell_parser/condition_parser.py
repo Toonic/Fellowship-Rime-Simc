@@ -156,6 +156,9 @@ class SimFileConditionParser:
         if bool(re.fullmatch(r"-?\d+(\.\d+)?", condition)):
             return float(condition)
 
+        if condition.startswith("active_enemies"):
+            return simulation.enemy_count
+
         if condition.startswith("character."):
             return SimFileConditionParser.get_character_value(
                 condition, simulation
