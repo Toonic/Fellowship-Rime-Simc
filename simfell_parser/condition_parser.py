@@ -149,7 +149,7 @@ class SimFileConditionParser:
         return all(checks)
 
     @staticmethod
-    def parse_side(condition: str, simulation: "Simulation") -> any:
+    def parse_side(condition: str, simulation: "Simulation") -> Any:
         """Parses out the side and fetches the appropriate value."""
 
         # If the values are floats or ints, just return as is.
@@ -175,7 +175,7 @@ class SimFileConditionParser:
             )
 
     @staticmethod
-    def get_character_value(condition: str, simulation: "Simulation") -> any:
+    def get_character_value(condition: str, simulation: "Simulation") -> Any:
         """Returns the condition value from the Character."""
         attribute_name = condition.split(".", 1)[1]
         character_value = getattr(simulation.character, attribute_name, None)
@@ -184,7 +184,7 @@ class SimFileConditionParser:
         return character_value
 
     @staticmethod
-    def get_spell_value(condition: str, simulation: "Simulation") -> any:
+    def get_spell_value(condition: str, simulation: "Simulation") -> Any:
         """Returns the condition value from the Spell."""
         spell_name = condition.split(".", 2)[1]
         attribute_name = condition.split(".", 2)[2]
@@ -196,7 +196,7 @@ class SimFileConditionParser:
         return spell_value
 
     @staticmethod
-    def get_buff_value(condition: str, simulation: "Simulation") -> any:
+    def get_buff_value(condition: str, simulation: "Simulation") -> Any:
         """Returns the condition value from buffs"""
         buff_name = condition.split(".", 2)[1]
         attribute_name = condition.split(".", 2)[2]
@@ -210,7 +210,7 @@ class SimFileConditionParser:
         return None
 
     @staticmethod
-    def get_debuff_value(condition: str, simulation: "Simulation") -> any:
+    def get_debuff_value(condition: str, simulation: "Simulation") -> Any:
         """Returns the condition value from debuffs"""
         debuff_name = condition.split(".", 2)[1]
         attribute_name = condition.split(".", 2)[2]
