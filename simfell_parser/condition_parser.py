@@ -7,7 +7,8 @@ import re
 from rich import print  # pylint: disable=redefined-builtin
 
 from simfell_parser.model import Condition
-from simfell_parser.utils import CharacterTypeT
+
+# from simfell_parser.utils import CharacterTypeT
 
 if typing.TYPE_CHECKING:
     from sim import Simulation
