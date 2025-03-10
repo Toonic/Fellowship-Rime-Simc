@@ -333,7 +333,8 @@ if __name__ == "__main__":
         "--character-hero",
         type=str,
         choices=character_classes.keys(),
-        help=f"Character hero to use. Choices: {', '.join(character_classes.keys())}",
+        help="Character hero to use. "
+        + f"Choices: {', '.join(character_classes.keys())}",
     )
     parser.add_argument(
         "-d",
